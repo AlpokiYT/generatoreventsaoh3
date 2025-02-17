@@ -3,896 +3,349 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generator Eventów - Age of History 3</title>
+    <title>Generator Eventów AoH3</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
+            max-width: 800px;
+            margin: 0 auto;
             padding: 20px;
+            background-color: #1e1e1e;
+            color: #ffffff;
         }
-        h1 {
-            color: #333;
-        }
+
         .container {
-            background-color: #fff;
+            background: #2d2d2d;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
+
+        h1 {
+            color: #4caf50;
+            text-align: center;
         }
-        input[type="text"], textarea, select {
+
+        .section {
+            margin-bottom: 30px;
+            border: 1px solid #444;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .error {
+            color: #ff4444;
+            font-size: 0.9em;
+            display: none;
+        }
+
+        input, select, textarea {
             width: 100%;
             padding: 8px;
-            margin-bottom: 16px;
-            border: 1px solid #ccc;
+            margin: 5px 0;
+            border: 1px solid #444;
             border-radius: 4px;
+            background-color: #3d3d3d;
+            color: #ffffff;
         }
-        .trigger-section, .option-section {
-            margin-bottom: 20px;
+
+        button {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
         }
-        .trigger-section h2, .option-section h2 {
-            margin-bottom: 10px;
-            color: #555;
+
+        button.remove-btn {
+            background-color: #ff4444;
         }
-        .trigger, .option {
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .links {
+            margin-top: 20px;
+            padding: 15px;
+            background: #3d3d3d;
+            border-radius: 5px;
+        }
+
+        .links a {
+            display: block;
+            margin: 5px 0;
+            color: #4caf50;
+            text-decoration: none;
+        }
+
+        #output {
+            white-space: pre-wrap;
+            background: #3d3d3d;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            color: #ffffff;
+        }
+
+        .trigger, .option, .outcome {
             margin-bottom: 10px;
             padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: #f9f9f9;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background-color: #3d3d3d;
         }
-        .add-trigger, .add-option {
-            background-color: #28a745; /* Zielony kolor */
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
+
+        .checkbox-group {
+            margin: 15px 0;
+            display: flex;
+            gap: 20px;
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
             cursor: pointer;
         }
-        .add-trigger:hover, .add-option:hover {
-            background-color: #218838; /* Ciemniejszy zielony */
-        }
-        .generate-button {
-            background-color: #dc3545; /* Czerwony kolor */
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
+
+        .checkbox-group input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            margin: 0;
             cursor: pointer;
+            accent-color: #4caf50;
         }
-        .generate-button:hover {
-            background-color: #c82333; /* Ciemniejszy czerwony */
-        }
-        .output {
-            margin-top: 20px;
-            padding: 20px;
-            background-color: #e9ecef;
-            border-radius: 4px;
-            white-space: pre-wrap;
-            font-family: monospace;
-        }
-        .language-buttons {
-            margin-bottom: 20px;
-        }
-        .language-buttons button {
-            background-color: #6c757d;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-right: 10px;
-        }
-        .language-buttons button:hover {
-            background-color: #5a6268;
-        }
-        .error-message {
-            color: red;
-            font-size: 0.9em;
-            margin-top: -10px;
-            margin-bottom: 10px;
-        }
-        .remove-outcome {
-            background-color: #dc3545; /* Czerwony kolor */
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-left: 10px;
-        }
-        .remove-outcome:hover {
-            background-color: #c82333; /* Ciemniejszy czerwony */
-        }
-        .linkaoh3 {
-            margin: 10px;
-            color: red;
+
+        #mission-image-group {
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="language-buttons">
-            <button onclick="changeLanguage('en')">English</button>
-            <button onclick="changeLanguage('pl')">Polski</button>
-            <button onclick="changeLanguage('es')">Español</button>
-            <button onclick="changeLanguage('de')">Deutsch</button>
-        </div>
-
-        <h1 id="title">Generator Eventów - Age of History 3</h1>
+        <h1>Generator Eventów - Age of History 3</h1>
         
-        <label for="event-id" id="label-event-id">ID Eventu:</label>
-        <input type="text" id="event-id" placeholder="np. unique_id_of_event">
-        <div id="error-event-id" class="error-message"></div>
+        <div class="links">
+            <h3>Przydatne linki:</h3>
+            <a href="http://www.ageofcivilizationsgame.com/topic/248695-age-of-history-3-events-triggers/" target="_blank">Lista wszystkich triggerów</a>
+            <a href="http://www.ageofcivilizationsgame.com/topic/249748-age-of-history-3-how-to-add-an-event/" target="_blank">Jak dodać event</a>
+            <a href="http://www.ageofcivilizationsgame.com/topic/248694-age-of-history-3-events-outcomes/" target="_blank">Lista wszystkich efektów</a>
+        </div>
 
-        <label for="event-title" id="label-event-title">Tytuł Eventu:</label>
-        <input type="text" id="event-title" placeholder="np. Here is the title of my event!">
-        <div id="error-event-title" class="error-message"></div>
-
-        <label for="event-desc" id="label-event-desc">Opis Eventu:</label>
-        <textarea id="event-desc" rows="4" placeholder="np. The description of my event."></textarea>
-        <div id="error-event-desc" class="error-message"></div>
-
-        <label for="event-image" id="label-event-image">Obraz Eventu:</label>
-        <input type="text" id="event-image" placeholder="np. 49.png">
-        <div id="error-event-image" class="error-message"></div>
-
-        <div class="trigger-section">
-            <h2 id="trigger-section-title">Warunki Wyzwalające (Triggers)</h2>
-            <div id="triggers">
-                <div class="trigger">
-                    <label for="trigger1" id="label-trigger1">Wybierz warunek:</label>
-                    <select id="trigger1" onchange="updateTriggerValuePlaceholder(1)">
-                        <option value="">Wybierz warunek...</option>
-                        <!-- Opcje triggerów będą dynamicznie wstawiane -->
-                    </select>
-                    <label for="trigger1-value" id="label-trigger-value">Wartość warunku:</label>
-                    <input type="text" id="trigger1-value" placeholder="np. 10">
-                    <div id="error-trigger1-value" class="error-message"></div>
-                </div>
+        <div class="section">
+            <h2>Podstawowe informacje</h2>
+            <input type="text" id="event-id" placeholder="ID eventu (np. unique_event_123)">
+            <input type="text" id="event-title" placeholder="Tytuł eventu">
+            <textarea id="event-desc" placeholder="Opis eventu" rows="3"></textarea>
+            <input type="text" id="event-image" placeholder="Ścieżka do obrazka (np. event1.png)">
+            
+            <div class="checkbox-group">
+                <label>
+                    <input type="checkbox" id="show-in-missions" onchange="toggleMissionImage()">
+                    <span>Pokaż w misjach</span>
+                </label>
+                <label>
+                    <input type="checkbox" id="only-once" checked>
+                    <span>Tylko raz</span>
+                </label>
             </div>
-            <button class="add-trigger" id="add-trigger-button" onclick="addTrigger()">Dodaj Warunek</button>
-        </div>
-
-        <div class="option-section">
-            <h2 id="option-section-title">Opcje Przycisków</h2>
-            <div id="options">
-                <div class="option">
-                    <label for="option1-name" id="label-option-name">Nazwa Przycisku:</label>
-                    <input type="text" id="option1-name" placeholder="np. Thank you, I don't collect points.">
-                    <div id="error-option1-name" class="error-message"></div>
-                    <label for="option1-ai" id="label-option-ai">AI (prawdopodobieństwo):</label>
-                    <input type="text" id="option1-ai" placeholder="np. 2">
-                    <div id="error-option1-ai" class="error-message"></div>
-                    <label for="option1-outcomes" id="label-option-outcomes">Efekty:</label>
-                    <div id="option1-outcomes">
-                        <div class="outcome">
-                            <select onchange="updateOutcomeValuePlaceholder('option1-outcome1')">
-                                <option value="">Wybierz efekt...</option>
-                                <!-- Opcje efektów będą dynamicznie wstawiane -->
-                            </select>
-                            <label for="option1-outcome1-value" id="label-outcome-value">Wartość efektu:</label>
-                            <input type="text" id="option1-outcome1-value" placeholder="np. 10">
-                            <div id="error-option1-outcome1-value" class="error-message"></div>
-                            <button class="remove-outcome" onclick="removeOutcome('option1-outcomes', this)">Usuń Efekt</button>
-                        </div>
-                    </div>
-                    <button class="add-outcome" id="add-outcome-button" onclick="addOutcome('option1-outcomes')">Dodaj Efekt</button>
-                </div>
+            
+            <div id="mission-image-group">
+                <input type="text" id="mission-image" placeholder="Numer obrazka misji (np. 2)">
             </div>
-            <button class="add-option" id="add-option-button" onclick="addOption()">Dodaj Opcję</button>
         </div>
 
-        <button class="generate-button" id="generate-button" onclick="generateEvent()">Generuj Event</button>
-
-        <div class="output">
-            <h2 id="output-title">Wygenerowany Event:</h2>
-            <pre id="output-event"></pre>
+        <div class="section">
+            <h2>Warunki wyzwalające (Triggery)
+                <button type="button" onclick="addTrigger()">+ Dodaj trigger</button>
+            </h2>
+            <div id="triggers-container"></div>
         </div>
-        <a class="linkaoh3" href="http://www.ageofcivilizationsgame.com/topic/249748-age-of-history-3-how-to-add-an-event/">How to add an Event</a>
-        <a class="linkaoh3" href="http://www.ageofcivilizationsgame.com/topic/248695-age-of-history-3-events-triggers/">Events Triggers</a>
-        <a class="linkaoh3" href="http://www.ageofcivilizationsgame.com/topic/248694-age-of-history-3-events-outcomes/">Events Outcomes</a>
+
+        <div class="section">
+            <h2>Opcje / Przyciski
+                <button type="button" onclick="addOption()">+ Dodaj opcję / przycisk</button>
+            </h2>
+            <div id="options-container"></div>
+        </div>
+
+        <div id="error-message" class="error"></div>
+        <button onclick="generateEvent()" style="background-color: #4caf50">Generuj Event</button>
+        
+        <div id="output"></div>
     </div>
 
     <script>
-        let triggerCount = 1;
-        let optionCount = 1;
-        let outcomeCount = {};
+        const triggersList = [
+            "civ_regiments_over", "civ_gold_over", "civ_population_over", "civ_provinces_over",
+            "civ_is_at_war", "civ_has_resource", "civ_religion_is", "civ_government_is",
+            "civ_has_more_provinces_than_civ", "civs_are_neighbors", "civs_are_at_war",
+            "civs_have_alliance", "province_controlled_by", "province_is_occupied",
+            "province_is_under_siege", "province_religion_is", "province_unrest_over",
+            "province_population_over", "is_civ", "declare_war2", "has_variable",
+            "random_chance", "year_over", "year_below", "exact_day", "playing_time_over",
+            "playing_time_below", "civ_has_larger_population_than_civ", "civ_has_larger_economy_than_civ",
+            "civ_has_more_regiments_than_civ", "civ_has_higher_ranking_than_civ", "civ_has_more_technologies_than_civ",
+            "civs_opinion_over", "civs_opinion_below", "civs_are_rivals", "civ_has_rivalry",
+            "civ_has_rivalry_not", "civs_have_defensive_pact", "civs_have_non_aggression",
+            "civs_have_truce", "civ_have_military_access", "civ_have_guarantee"
+        ];
 
-        const translations = {
-            en: {
-                title: "Event Generator - Age of History 3",
-                labelEventId: "Event ID:",
-                labelEventTitle: "Event Title:",
-                labelEventDesc: "Event Description:",
-                labelEventImage: "Event Image:",
-                triggerSectionTitle: "Triggers",
-                labelTrigger: "Select Trigger:",
-                labelTriggerValue: "Trigger Value:",
-                addTriggerButton: "Add Trigger",
-                optionSectionTitle: "Button Options",
-                labelOptionName: "Button Name:",
-                labelOptionAI: "AI (probability):",
-                labelOptionOutcomes: "Outcomes:",
-                labelOutcomeValue: "Outcome Value:",
-                addOutcomeButton: "Add Outcome",
-                addOptionButton: "Add Option",
-                generateButton: "Generate Event",
-                outputTitle: "Generated Event:",
-                removeOutcomeButton: "Remove Outcome",
-                triggers: {
-                    civ_regiments_over: "Army has more than X regiments",
-                    civ_gold_over: "Gold is greater than X",
-                    civ_population_over: "Population is greater than X",
-                    civ_provinces_over: "Number of provinces is greater than X",
-                    civ_is_at_war: "Civilization is at war",
-                    civ_has_resource: "Civilization has resource with ID X",
-                    civ_religion_is: "Civilization has religion with ID X",
-                    civ_government_is: "Civilization has government with ID X",
-                    civ_has_more_provinces_than_civ: "Civilization has more provinces than another civilization",
-                    civs_are_neighbors: "Civilizations are neighbors",
-                    civs_are_at_war: "Civilizations are at war",
-                    civs_have_alliance: "Civilizations have an alliance",
-                    province_controlled_by: "Province is controlled by civilization",
-                    province_is_occupied: "Province is occupied",
-                    province_is_under_siege: "Province is under siege",
-                    province_religion_is: "Province has religion with ID X",
-                    province_unrest_over: "Unrest in province is greater than X",
-                    province_population_over: "Population in province is greater than X",
-                    is_civ: "Civilization has specific tag (e.g., is_civ=spa)",
-                    declare_war2: "Civilization declares war (e.g., declare_war2=ger=pol)",
-                    has_variable: "Civilization has specific variable (e.g., has_variable=some_variable)",
-                    random_chance: "Random chance (e.g., random_chance=12.5)",
-                    year_over: "Year is greater than X (e.g., year_over=1800)",
-                    year_below: "Year is less than X (e.g., year_below=1750)",
-                    exact_day: "Exact date (e.g., exact_day=1=9=1939)",
-                    playing_time_over: "Playing time is greater than X days (e.g., playing_time_over=365)",
-                    playing_time_below: "Playing time is less than X days (e.g., playing_time_below=365)",
-                    civ_has_larger_population_than_civ: "Civilization has larger population than another civilization (e.g., civ_has_larger_population_than_civ=fra=ger)",
-                    civ_has_larger_economy_than_civ: "Civilization has larger economy than another civilization (e.g., civ_has_larger_economy_than_civ=pol_m=fra)",
-                    civ_has_more_regiments_than_civ: "Civilization has more regiments than another civilization (e.g., civ_has_more_regiments_than_civ=pol=rus)",
-                    civ_has_higher_ranking_than_civ: "Civilization has higher ranking than another civilization (e.g., civ_has_higher_ranking_than_civ=rus=ger)",
-                    civ_has_more_technologies_than_civ: "Civilization has more technologies than another civilization (e.g., civ_has_more_technologies_than_civ=rus=fra)",
-                    civs_opinion_over: "Opinion between civilizations is greater than X (e.g., civs_opinion_over=ger=pol=-25.0)",
-                    civs_opinion_below: "Opinion between civilizations is less than X (e.g., civs_opinion_below=ger=pol=-25.0)",
-                    civs_are_rivals: "Civilizations are rivals (e.g., civs_are_rivals=ger=pol)",
-                    civ_has_rivalry: "Civilization has rival (e.g., civ_has_rivalry=ger=pol)",
-                    civ_has_rivalry_not: "Civilization does not have rival (e.g., civ_has_rivalry_not=ger=pol)",
-                    civs_have_defensive_pact: "Civilizations have defensive pact (e.g., civs_have_defensive_pact=ger=fra)",
-                    civs_have_non_aggression: "Civilizations have non-aggression pact (e.g., civs_have_non_aggression=ger=fra)",
-                    civs_have_truce: "Civilizations have truce (e.g., civs_have_truce=ger=fra)",
-                    civ_have_military_access: "Civilization has military access to another civilization (e.g., civ_have_military_access=ger=fra)",
-                    civ_have_guarantee: "Civilization guarantees independence of another civilization (e.g., civ_have_guarantee=ger=fra)",
-                },
-                outcomes: {
-                    gold: "Add gold (gold=X)",
-                    prestige: "Add prestige (prestige=X)",
-                    legacy: "Add legacy (legacy=X)",
-                    manpower: "Add manpower (manpower=X)",
-                    max_morale: "Increase max morale (max_morale=X)",
-                    army_morale_recovery: "Increase army morale recovery (army_morale_recovery=X)",
-                    tax_efficiency: "Increase tax efficiency (tax_efficiency=X)",
-                    research_points: "Add research points (research_points=X)",
-                    inflation: "Reduce inflation (inflation=X)",
-                    unrest: "Reduce unrest (unrest=X)",
-                    province_manpower: "Add manpower in province (province_manpower=X)",
-                    province_economy: "Increase province economy (province_economy=X)",
-                    province_growth_rate: "Increase province growth rate (province_growth_rate=X)",
-                    province_tax_efficiency: "Increase province tax efficiency (province_tax_efficiency=X)",
-                    province_unrest: "Reduce unrest in province (province_unrest=X)",
-                    province_infrastructure: "Increase province infrastructure (province_infrastructure=X)",
-                    province_defense_lvl: "Increase province defense level (province_defense_lvl=X)",
-                    province_buildings: "Add building in province (province_buildings=X)",
-                    province_buildings_limit: "Increase building limit in province (province_buildings_limit=X)",
-                    province_is_capital: "Set province as capital (province_is_capital=true/false)",
-                    province_is_occupied: "Change province occupation status (province_is_occupied=true/false)",
-                    province_is_under_siege: "Change province siege status (province_is_under_siege=true/false)",
-                    province_religion_is: "Change province religion (province_religion_is=X)",
-                    province_religion_is_not: "Change province religion (province_religion_is_not=X)",
-                    province_has_building: "Add building in province (province_has_building=X=Y)",
-                    province_controlled_by: "Change province control (province_controlled_by=X=Y)",
-                    province_not_controlled_by: "Change province control (province_not_controlled_by=X=Y)",
-                    province_civ_has_core: "Add core to province (province_civ_has_core=X=Y)",
-                },
-            },
-            pl: {
-                title: "Generator Eventów - Age of History 3",
-                labelEventId: "ID Eventu:",
-                labelEventTitle: "Tytuł Eventu:",
-                labelEventDesc: "Opis Eventu:",
-                labelEventImage: "Obraz Eventu:",
-                triggerSectionTitle: "Warunki Wyzwalające (Triggers)",
-                labelTrigger: "Wybierz warunek:",
-                labelTriggerValue: "Wartość warunku:",
-                addTriggerButton: "Dodaj Warunek",
-                optionSectionTitle: "Opcje Przycisków",
-                labelOptionName: "Nazwa Przycisku:",
-                labelOptionAI: "AI (prawdopodobieństwo):",
-                labelOptionOutcomes: "Efekty:",
-                labelOutcomeValue: "Wartość efektu:",
-                addOutcomeButton: "Dodaj Efekt",
-                addOptionButton: "Dodaj Opcję",
-                generateButton: "Generuj Event",
-                outputTitle: "Wygenerowany Event:",
-                removeOutcomeButton: "Usuń Efekt",
-                triggers: {
-                    civ_regiments_over: "Armia ma więcej niż X regimentów",
-                    civ_gold_over: "Złoto jest większe niż X",
-                    civ_population_over: "Populacja jest większa niż X",
-                    civ_provinces_over: "Liczba prowincji jest większa niż X",
-                    civ_is_at_war: "Cywilizacja jest w stanie wojny",
-                    civ_has_resource: "Cywilizacja posiada zasób o ID X",
-                    civ_religion_is: "Cywilizacja ma religię o ID X",
-                    civ_government_is: "Cywilizacja ma rząd o ID X",
-                    civ_has_more_provinces_than_civ: "Cywilizacja ma więcej prowincji niż inna cywilizacja",
-                    civs_are_neighbors: "Cywilizacje są sąsiadami",
-                    civs_are_at_war: "Cywilizacje są w stanie wojny",
-                    civs_have_alliance: "Cywilizacje mają sojusz",
-                    province_controlled_by: "Prowincja jest kontrolowana przez cywilizację",
-                    province_is_occupied: "Prowincja jest okupowana",
-                    province_is_under_siege: "Prowincja jest oblężona",
-                    province_religion_is: "Prowincja ma religię o ID X",
-                    province_unrest_over: "Niepokoje w prowincji są większe niż X",
-                    province_population_over: "Populacja prowincji jest większa niż X",
-                    is_civ: "Cywilizacja ma określony tag (np. is_civ=spa)",
-                    declare_war2: "Cywilizacja wypowiada wojnę (np. declare_war2=ger=pol)",
-                    has_variable: "Cywilizacja ma określoną zmienną (np. has_variable=some_variable)",
-                    random_chance: "Losowa szansa (np. random_chance=12.5)",
-                    year_over: "Rok jest większy niż X (np. year_over=1800)",
-                    year_below: "Rok jest mniejszy niż X (np. year_below=1750)",
-                    exact_day: "Dokładna data (np. exact_day=1=9=1939)",
-                    playing_time_over: "Czas gry jest większy niż X dni (np. playing_time_over=365)",
-                    playing_time_below: "Czas gry jest mniejszy niż X dni (np. playing_time_below=365)",
-                    civ_has_larger_population_than_civ: "Cywilizacja ma większą populację niż inna cywilizacja (np. civ_has_larger_population_than_civ=fra=ger)",
-                    civ_has_larger_economy_than_civ: "Cywilizacja ma większą gospodarkę niż inna cywilizacja (np. civ_has_larger_economy_than_civ=pol_m=fra)",
-                    civ_has_more_regiments_than_civ: "Cywilizacja ma więcej regimentów niż inna cywilizacja (np. civ_has_more_regiments_than_civ=pol=rus)",
-                    civ_has_higher_ranking_than_civ: "Cywilizacja ma wyższą pozycję w rankingu niż inna cywilizacja (np. civ_has_higher_ranking_than_civ=rus=ger)",
-                    civ_has_more_technologies_than_civ: "Cywilizacja ma więcej technologii niż inna cywilizacja (np. civ_has_more_technologies_than_civ=rus=fra)",
-                    civs_opinion_over: "Opinia między cywilizacjami jest większa niż X (np. civs_opinion_over=ger=pol=-25.0)",
-                    civs_opinion_below: "Opinia między cywilizacjami jest mniejsza niż X (np. civs_opinion_below=ger=pol=-25.0)",
-                    civs_are_rivals: "Cywilizacje są rywalami (np. civs_are_rivals=ger=pol)",
-                    civ_has_rivalry: "Cywilizacja ma rywala (np. civ_has_rivalry=ger=pol)",
-                    civ_has_rivalry_not: "Cywilizacja nie ma rywala (np. civ_has_rivalry_not=ger=pol)",
-                    civs_have_defensive_pact: "Cywilizacje mają pakt obronny (np. civs_have_defensive_pact=ger=fra)",
-                    civs_have_non_aggression: "Cywilizacje mają pakt o nieagresji (np. civs_have_non_aggression=ger=fra)",
-                    civs_have_truce: "Cywilizacje mają rozejm (np. civs_have_truce=ger=fra)",
-                    civ_have_military_access: "Cywilizacja ma dostęp wojskowy do innej cywilizacji (np. civ_have_military_access=ger=fra)",
-                    civ_have_guarantee: "Cywilizacja gwarantuje niepodległość innej cywilizacji (np. civ_have_guarantee=ger=fra)",
-                },
-                outcomes: {
-                    gold: "Dodaj złoto (gold=X)",
-                    prestige: "Dodaj prestiż (prestige=X)",
-                    legacy: "Dodaj dziedzictwo (legacy=X)",
-                    manpower: "Dodaj siłę roboczą (manpower=X)",
-                    max_morale: "Zwiększ maksymalne morale (max_morale=X)",
-                    army_morale_recovery: "Zwiększ regenerację morale armii (army_morale_recovery=X)",
-                    tax_efficiency: "Zwiększ efektywność podatków (tax_efficiency=X)",
-                    research_points: "Dodaj punkty badawcze (research_points=X)",
-                    inflation: "Zmniejsz inflację (inflation=X)",
-                    unrest: "Zmniejsz niepokoje (unrest=X)",
-                    province_manpower: "Dodaj siłę roboczą w prowincji (province_manpower=X)",
-                    province_economy: "Zwiększ gospodarkę prowincji (province_economy=X)",
-                    province_growth_rate: "Zwiększ wzrost prowincji (province_growth_rate=X)",
-                    province_tax_efficiency: "Zwiększ efektywność podatków w prowincji (province_tax_efficiency=X)",
-                    province_unrest: "Zmniejsz niepokoje w prowincji (province_unrest=X)",
-                    province_infrastructure: "Zwiększ infrastrukturę prowincji (province_infrastructure=X)",
-                    province_defense_lvl: "Zwiększ poziom obrony prowincji (province_defense_lvl=X)",
-                    province_buildings: "Dodaj budynek w prowincji (province_buildings=X)",
-                    province_buildings_limit: "Zwiększ limit budynków w prowincji (province_buildings_limit=X)",
-                    province_is_capital: "Ustaw prowincję jako stolicę (province_is_capital=true/false)",
-                    province_is_occupied: "Zmień status okupacji prowincji (province_is_occupied=true/false)",
-                    province_is_under_siege: "Zmień status oblężenia prowincji (province_is_under_siege=true/false)",
-                    province_religion_is: "Zmień religię prowincji (province_religion_is=X)",
-                    province_religion_is_not: "Zmień religię prowincji (province_religion_is_not=X)",
-                    province_has_building: "Dodaj budynek w prowincji (province_has_building=X=Y)",
-                    province_controlled_by: "Zmień kontrolę nad prowincją (province_controlled_by=X=Y)",
-                    province_not_controlled_by: "Zmień kontrolę nad prowincją (province_not_controlled_by=X=Y)",
-                    province_civ_has_core: "Dodaj rdzeń prowincji (province_civ_has_core=X=Y)",
-                },
-            },
-            es: {
-                title: "Generador de Eventos - Age of History 3",
-                labelEventId: "ID del Evento:",
-                labelEventTitle: "Título del Evento:",
-                labelEventDesc: "Descripción del Evento:",
-                labelEventImage: "Imagen del Evento:",
-                triggerSectionTitle: "Desencadenantes",
-                labelTrigger: "Seleccionar Desencadenante:",
-                labelTriggerValue: "Valor del Desencadenante:",
-                addTriggerButton: "Añadir Desencadenante",
-                optionSectionTitle: "Opciones de Botón",
-                labelOptionName: "Nombre del Botón:",
-                labelOptionAI: "IA (probabilidad):",
-                labelOptionOutcomes: "Resultados:",
-                labelOutcomeValue: "Valor del Resultado:",
-                addOutcomeButton: "Añadir Resultado",
-                addOptionButton: "Añadir Opción",
-                generateButton: "Generar Evento",
-                outputTitle: "Evento Generado:",
-                removeOutcomeButton: "Eliminar Resultado",
-                triggers: {
-                    civ_regiments_over: "El ejército tiene más de X regimientos",
-                    civ_gold_over: "El oro es mayor que X",
-                    civ_population_over: "La población es mayor que X",
-                    civ_provinces_over: "El número de provincias es mayor que X",
-                    civ_is_at_war: "La civilización está en guerra",
-                    civ_has_resource: "La civilización tiene el recurso con ID X",
-                    civ_religion_is: "La civilización tiene la religión con ID X",
-                    civ_government_is: "La civilización tiene el gobierno con ID X",
-                    civ_has_more_provinces_than_civ: "La civilización tiene más provincias que otra civilización",
-                    civs_are_neighbors: "Las civilizaciones son vecinas",
-                    civs_are_at_war: "Las civilizaciones están en guerra",
-                    civs_have_alliance: "Las civilizaciones tienen una alianza",
-                    province_controlled_by: "La provincia está controlada por la civilización",
-                    province_is_occupied: "La provincia está ocupada",
-                    province_is_under_siege: "La provincia está bajo asedio",
-                    province_religion_is: "La provincia tiene la religión con ID X",
-                    province_unrest_over: "El descontento en la provincia es mayor que X",
-                    province_population_over: "La población en la provincia es mayor que X",
-                    is_civ: "La civilización tiene una etiqueta específica (por ejemplo, is_civ=spa)",
-                    declare_war2: "La civilización declara la guerra (por ejemplo, declare_war2=ger=pol)",
-                    has_variable: "La civilización tiene una variable específica (por ejemplo, has_variable=some_variable)",
-                    random_chance: "Probabilidad aleatoria (por ejemplo, random_chance=12.5)",
-                    year_over: "El año es mayor que X (por ejemplo, year_over=1800)",
-                    year_below: "El año es menor que X (por ejemplo, year_below=1750)",
-                    exact_day: "Fecha exacta (por ejemplo, exact_day=1=9=1939)",
-                    playing_time_over: "El tiempo de juego es mayor que X días (por ejemplo, playing_time_over=365)",
-                    playing_time_below: "El tiempo de juego es menor que X días (por ejemplo, playing_time_below=365)",
-                    civ_has_larger_population_than_civ: "La civilización tiene una población mayor que otra civilización (por ejemplo, civ_has_larger_population_than_civ=fra=ger)",
-                    civ_has_larger_economy_than_civ: "La civilización tiene una economía mayor que otra civilización (por ejemplo, civ_has_larger_economy_than_civ=pol_m=fra)",
-                    civ_has_more_regiments_than_civ: "La civilización tiene más regimientos que otra civilización (por ejemplo, civ_has_more_regiments_than_civ=pol=rus)",
-                    civ_has_higher_ranking_than_civ: "La civilización tiene un ranking más alto que otra civilización (por ejemplo, civ_has_higher_ranking_than_civ=rus=ger)",
-                    civ_has_more_technologies_than_civ: "La civilización tiene más tecnologías que otra civilización (por ejemplo, civ_has_more_technologies_than_civ=rus=fra)",
-                    civs_opinion_over: "La opinión entre civilizaciones es mayor que X (por ejemplo, civs_opinion_over=ger=pol=-25.0)",
-                    civs_opinion_below: "La opinión entre civilizaciones es menor que X (por ejemplo, civs_opinion_below=ger=pol=-25.0)",
-                    civs_are_rivals: "Las civilizaciones son rivales (por ejemplo, civs_are_rivals=ger=pol)",
-                    civ_has_rivalry: "La civilización tiene un rival (por ejemplo, civ_has_rivalry=ger=pol)",
-                    civ_has_rivalry_not: "La civilización no tiene rival (por ejemplo, civ_has_rivalry_not=ger=pol)",
-                    civs_have_defensive_pact: "Las civilizaciones tienen un pacto defensivo (por ejemplo, civs_have_defensive_pact=ger=fra)",
-                    civs_have_non_aggression: "Las civilizaciones tienen un pacto de no agresión (por ejemplo, civs_have_non_aggression=ger=fra)",
-                    civs_have_truce: "Las civilizaciones tienen una tregua (por ejemplo, civs_have_truce=ger=fra)",
-                    civ_have_military_access: "La civilización tiene acceso militar a otra civilización (por ejemplo, civ_have_military_access=ger=fra)",
-                    civ_have_guarantee: "La civilización garantiza la independencia de otra civilización (por ejemplo, civ_have_guarantee=ger=fra)",
-                },
-                outcomes: {
-                    gold: "Añadir oro (gold=X)",
-                    prestige: "Añadir prestigio (prestige=X)",
-                    legacy: "Añadir legado (legacy=X)",
-                    manpower: "Añadir mano de obra (manpower=X)",
-                    max_morale: "Aumentar la moral máxima (max_morale=X)",
-                    army_morale_recovery: "Aumentar la recuperación de moral del ejército (army_morale_recovery=X)",
-                    tax_efficiency: "Aumentar la eficiencia fiscal (tax_efficiency=X)",
-                    research_points: "Añadir puntos de investigación (research_points=X)",
-                    inflation: "Reducir la inflación (inflation=X)",
-                    unrest: "Reducir el descontento (unrest=X)",
-                    province_manpower: "Añadir mano de obra en la provincia (province_manpower=X)",
-                    province_economy: "Aumentar la economía de la provincia (province_economy=X)",
-                    province_growth_rate: "Aumentar la tasa de crecimiento de la provincia (province_growth_rate=X)",
-                    province_tax_efficiency: "Aumentar la eficiencia fiscal de la provincia (province_tax_efficiency=X)",
-                    province_unrest: "Reducir el descontento en la provincia (province_unrest=X)",
-                    province_infrastructure: "Aumentar la infraestructura de la provincia (province_infrastructure=X)",
-                    province_defense_lvl: "Aumentar el nivel de defensa de la provincia (province_defense_lvl=X)",
-                    province_buildings: "Añadir edificio en la provincia (province_buildings=X)",
-                    province_buildings_limit: "Aumentar el límite de edificios en la provincia (province_buildings_limit=X)",
-                    province_is_capital: "Establecer la provincia como capital (province_is_capital=true/false)",
-                    province_is_occupied: "Cambiar el estado de ocupación de la provincia (province_is_occupied=true/false)",
-                    province_is_under_siege: "Cambiar el estado de asedio de la provincia (province_is_under_siege=true/false)",
-                    province_religion_is: "Cambiar la religión de la provincia (province_religion_is=X)",
-                    province_religion_is_not: "Cambiar la religión de la provincia (province_religion_is_not=X)",
-                    province_has_building: "Añadir edificio en la provincia (province_has_building=X=Y)",
-                    province_controlled_by: "Cambiar el control de la provincia (province_controlled_by=X=Y)",
-                    province_not_controlled_by: "Cambiar el control de la provincia (province_not_controlled_by=X=Y)",
-                    province_civ_has_core: "Añadir núcleo a la provincia (province_civ_has_core=X=Y)",
-                },
-            },
-            de: {
-                title: "Event-Generator - Age of History 3",
-                labelEventId: "Event-ID:",
-                labelEventTitle: "Event-Titel:",
-                labelEventDesc: "Event-Beschreibung:",
-                labelEventImage: "Event-Bild:",
-                triggerSectionTitle: "Auslöser",
-                labelTrigger: "Auslöser auswählen:",
-                labelTriggerValue: "Auslöserwert:",
-                addTriggerButton: "Auslöser hinzufügen",
-                optionSectionTitle: "Schaltflächenoptionen",
-                labelOptionName: "Schaltflächenname:",
-                labelOptionAI: "KI (Wahrscheinlichkeit):",
-                labelOptionOutcomes: "Ergebnisse:",
-                labelOutcomeValue: "Ergebniswert:",
-                addOutcomeButton: "Ergebnis hinzufügen",
-                addOptionButton: "Option hinzufügen",
-                generateButton: "Event generieren",
-                outputTitle: "Generiertes Event:",
-                removeOutcomeButton: "Ergebnis entfernen",
-                triggers: {
-                    civ_regiments_over: "Die Armee hat mehr als X Regimenter",
-                    civ_gold_over: "Das Gold ist größer als X",
-                    civ_population_over: "Die Bevölkerung ist größer als X",
-                    civ_provinces_over: "Die Anzahl der Provinzen ist größer als X",
-                    civ_is_at_war: "Die Zivilisation ist im Krieg",
-                    civ_has_resource: "Die Zivilisation hat die Ressource mit ID X",
-                    civ_religion_is: "Die Zivilisation hat die Religion mit ID X",
-                    civ_government_is: "Die Zivilisation hat die Regierung mit ID X",
-                    civ_has_more_provinces_than_civ: "Die Zivilisation hat mehr Provinzen als eine andere Zivilisation",
-                    civs_are_neighbors: "Die Zivilisationen sind Nachbarn",
-                    civs_are_at_war: "Die Zivilisationen sind im Krieg",
-                    civs_have_alliance: "Die Zivilisationen haben ein Bündnis",
-                    province_controlled_by: "Die Provinz wird von der Zivilisation kontrolliert",
-                    province_is_occupied: "Die Provinz ist besetzt",
-                    province_is_under_siege: "Die Provinz wird belagert",
-                    province_religion_is: "Die Provinz hat die Religion mit ID X",
-                    province_unrest_over: "Die Unruhen in der Provinz sind größer als X",
-                    province_population_over: "Die Bevölkerung in der Provinz ist größer als X",
-                    is_civ: "Die Zivilisation hat ein bestimmtes Tag (z. B. is_civ=spa)",
-                    declare_war2: "Die Zivilisation erklärt den Krieg (z. B. declare_war2=ger=pol)",
-                    has_variable: "Die Zivilisation hat eine bestimmte Variable (z. B. has_variable=some_variable)",
-                    random_chance: "Zufällige Chance (z. B. random_chance=12.5)",
-                    year_over: "Das Jahr ist größer als X (z. B. year_over=1800)",
-                    year_below: "Das Jahr ist kleiner als X (z. B. year_below=1750)",
-                    exact_day: "Genaues Datum (z. B. exact_day=1=9=1939)",
-                    playing_time_over: "Die Spielzeit ist größer als X Tage (z. B. playing_time_over=365)",
-                    playing_time_below: "Die Spielzeit ist kleiner als X Tage (z. B. playing_time_below=365)",
-                    civ_has_larger_population_than_civ: "Die Zivilisation hat eine größere Bevölkerung als eine andere Zivilisation (z. B. civ_has_larger_population_than_civ=fra=ger)",
-                    civ_has_larger_economy_than_civ: "Die Zivilisation hat eine größere Wirtschaft als eine andere Zivilisation (z. B. civ_has_larger_economy_than_civ=pol_m=fra)",
-                    civ_has_more_regiments_than_civ: "Die Zivilisation hat mehr Regimenter als eine andere Zivilisation (z. B. civ_has_more_regiments_than_civ=pol=rus)",
-                    civ_has_higher_ranking_than_civ: "Die Zivilisation hat ein höheres Ranking als eine andere Zivilisation (z. B. civ_has_higher_ranking_than_civ=rus=ger)",
-                    civ_has_more_technologies_than_civ: "Die Zivilisation hat mehr Technologien als eine andere Zivilisation (z. B. civ_has_more_technologies_than_civ=rus=fra)",
-                    civs_opinion_over: "Die Meinung zwischen den Zivilisationen ist größer als X (z. B. civs_opinion_over=ger=pol=-25.0)",
-                    civs_opinion_below: "Die Meinung zwischen den Zivilisationen ist kleiner als X (z. B. civs_opinion_below=ger=pol=-25.0)",
-                    civs_are_rivals: "Die Zivilisationen sind Rivalen (z. B. civs_are_rivals=ger=pol)",
-                    civ_has_rivalry: "Die Zivilisation hat einen Rivalen (z. B. civ_has_rivalry=ger=pol)",
-                    civ_has_rivalry_not: "Die Zivilisation hat keinen Rivalen (z. B. civ_has_rivalry_not=ger=pol)",
-                    civs_have_defensive_pact: "Die Zivilisationen haben einen Verteidigungspakt (z. B. civs_have_defensive_pact=ger=fra)",
-                    civs_have_non_aggression: "Die Zivilisationen haben einen Nichtangriffspakt (z. B. civs_have_non_aggression=ger=fra)",
-                    civs_have_truce: "Die Zivilisationen haben einen Waffenstillstand (z. B. civs_have_truce=ger=fra)",
-                    civ_have_military_access: "Die Zivilisation hat militärischen Zugang zu einer anderen Zivilisation (z. B. civ_have_military_access=ger=fra)",
-                    civ_have_guarantee: "Die Zivilisation garantiert die Unabhängigkeit einer anderen Zivilisation (z. B. civ_have_guarantee=ger=fra)",
-                },
-                outcomes: {
-                    gold: "Gold hinzufügen (gold=X)",
-                    prestige: "Prestige hinzufügen (prestige=X)",
-                    legacy: "Vermächtnis hinzufügen (legacy=X)",
-                    manpower: "Arbeitskräfte hinzufügen (manpower=X)",
-                    max_morale: "Maximale Moral erhöhen (max_morale=X)",
-                    army_morale_recovery: "Moralerholung der Armee erhöhen (army_morale_recovery=X)",
-                    tax_efficiency: "Steuereffizienz erhöhen (tax_efficiency=X)",
-                    research_points: "Forschungspunkte hinzufügen (research_points=X)",
-                    inflation: "Inflation verringern (inflation=X)",
-                    unrest: "Unruhen verringern (unrest=X)",
-                    province_manpower: "Arbeitskräfte in der Provinz hinzufügen (province_manpower=X)",
-                    province_economy: "Wirtschaft der Provinz erhöhen (province_economy=X)",
-                    province_growth_rate: "Wachstumsrate der Provinz erhöhen (province_growth_rate=X)",
-                    province_tax_efficiency: "Steuereffizienz der Provinz erhöhen (province_tax_efficiency=X)",
-                    province_unrest: "Unruhen in der Provinz verringern (province_unrest=X)",
-                    province_infrastructure: "Infrastruktur der Provinz erhöhen (province_infrastructure=X)",
-                    province_defense_lvl: "Verteidigungsniveau der Provinz erhöhen (province_defense_lvl=X)",
-                    province_buildings: "Gebäude in der Provinz hinzufügen (province_buildings=X)",
-                    province_buildings_limit: "Gebäudelimit in der Provinz erhöhen (province_buildings_limit=X)",
-                    province_is_capital: "Provinz als Hauptstadt festlegen (province_is_capital=true/false)",
-                    province_is_occupied: "Besatzungsstatus der Provinz ändern (province_is_occupied=true/false)",
-                    province_is_under_siege: "Belagerungsstatus der Provinz ändern (province_is_under_siege=true/false)",
-                    province_religion_is: "Religion der Provinz ändern (province_religion_is=X)",
-                    province_religion_is_not: "Religion der Provinz ändern (province_religion_is_not=X)",
-                    province_has_building: "Gebäude in der Provinz hinzufügen (province_has_building=X=Y)",
-                    province_controlled_by: "Kontrolle über die Provinz ändern (province_controlled_by=X=Y)",
-                    province_not_controlled_by: "Kontrolle über die Provinz ändern (province_not_controlled_by=X=Y)",
-                    province_civ_has_core: "Kern zur Provinz hinzufügen (province_civ_has_core=X=Y)",
-                },
-            },
-        };
+        const outcomesList = [
+            "gold", "prestige", "legacy", "manpower", "max_morale", "army_morale_recovery",
+            "tax_efficiency", "research_points", "inflation", "unrest", "province_manpower",
+            "province_economy", "province_growth_rate", "province_tax_efficiency", "province_unrest",
+            "province_infrastructure", "province_defense_lvl", "province_buildings", "province_buildings_limit",
+            "province_is_capital", "province_is_occupied", "province_is_under_siege", "province_religion_is",
+            "province_religion_is_not", "province_has_building", "province_controlled_by", "province_not_controlled_by",
+            "province_civ_has_core"
+        ];
 
-        let lang = 'pl'; // Domyślny język
+        let triggerCount = 0;
+        let optionCount = 0;
 
-        function changeLanguage(newLang) {
-            lang = newLang;
-            updateUI();
-        }
-
-        function updateUI() {
-            const translation = translations[lang];
-            document.getElementById('title').textContent = translation.title;
-            document.getElementById('label-event-id').textContent = translation.labelEventId;
-            document.getElementById('label-event-title').textContent = translation.labelEventTitle;
-            document.getElementById('label-event-desc').textContent = translation.labelEventDesc;
-            document.getElementById('label-event-image').textContent = translation.labelEventImage;
-            document.getElementById('trigger-section-title').textContent = translation.triggerSectionTitle;
-            document.getElementById('label-trigger1').textContent = translation.labelTrigger;
-            document.getElementById('label-trigger-value').textContent = translation.labelTriggerValue;
-            document.getElementById('add-trigger-button').textContent = translation.addTriggerButton;
-            document.getElementById('option-section-title').textContent = translation.optionSectionTitle;
-            document.getElementById('label-option-name').textContent = translation.labelOptionName;
-            document.getElementById('label-option-ai').textContent = translation.labelOptionAI;
-            document.getElementById('label-option-outcomes').textContent = translation.labelOptionOutcomes;
-            document.getElementById('label-outcome-value').textContent = translation.labelOutcomeValue;
-            document.getElementById('add-outcome-button').textContent = translation.addOutcomeButton;
-            document.getElementById('add-option-button').textContent = translation.addOptionButton;
-            document.getElementById('generate-button').textContent = translation.generateButton;
-            document.getElementById('output-title').textContent = translation.outputTitle;
-
-            // Aktualizuj opcje triggerów
-            const triggerSelects = document.querySelectorAll('.trigger select');
-            triggerSelects.forEach(select => {
-                select.innerHTML = `<option value="">${translation.labelTrigger}</option>` +
-                    Object.entries(translation.triggers).map(([value, text]) => `<option value="${value}">${value} - ${text}</option>`).join('');
-            });
-
-            // Aktualizuj opcje efektów
-            const outcomeSelects = document.querySelectorAll('.outcome select');
-            outcomeSelects.forEach(select => {
-                select.innerHTML = `<option value="">${translation.labelOptionOutcomes}</option>` +
-                    Object.entries(translation.outcomes).map(([value, text]) => `<option value="${value}">${value} - ${text}</option>`).join('');
-            });
-
-            // Aktualizuj przyciski usuwania efektów
-            const removeButtons = document.querySelectorAll('.remove-outcome');
-            removeButtons.forEach(button => {
-                button.textContent = translation.removeOutcomeButton;
-            });
+        function toggleMissionImage() {
+            const missionImageGroup = document.getElementById('mission-image-group');
+            missionImageGroup.style.display = document.getElementById('show-in-missions').checked ? 'block' : 'none';
         }
 
         function addTrigger() {
-            triggerCount++;
-            const triggersDiv = document.getElementById('triggers');
-            const newTrigger = document.createElement('div');
-            newTrigger.className = 'trigger';
-            newTrigger.innerHTML = `
-                <label for="trigger${triggerCount}">${translations[lang].labelTrigger}</label>
-                <select id="trigger${triggerCount}" onchange="updateTriggerValuePlaceholder(${triggerCount})">
-                    <option value="">${translations[lang].labelTrigger}</option>
-                    ${Object.entries(translations[lang].triggers).map(([value, text]) => `<option value="${value}">${value} - ${text}</option>`).join('')}
+            const container = document.getElementById('triggers-container');
+            const div = document.createElement('div');
+            div.className = 'trigger';
+            div.innerHTML = `
+                <select class="trigger-select">
+                    <option value="">Wybierz trigger...</option>
+                    ${triggersList.map(trigger => `<option value="${trigger}">${trigger}</option>`).join('')}
                 </select>
-                <label for="trigger${triggerCount}-value">${translations[lang].labelTriggerValue}</label>
-                <input type="text" id="trigger${triggerCount}-value" placeholder="np. 10">
-                <div id="error-trigger${triggerCount}-value" class="error-message"></div>
+                <input type="text" placeholder="Wartość (np. 10 lub spa=ger)">
+                <button class="remove-btn" onclick="this.parentElement.remove()">Usuń</button>
             `;
-            triggersDiv.appendChild(newTrigger);
+            container.appendChild(div);
         }
 
         function addOption() {
-            optionCount++;
-            const optionsDiv = document.getElementById('options');
-            const newOption = document.createElement('div');
-            newOption.className = 'option';
-            newOption.innerHTML = `
-                <label for="option${optionCount}-name">${translations[lang].labelOptionName}</label>
-                <input type="text" id="option${optionCount}-name" placeholder="np. Thank you, I don't collect points.">
-                <div id="error-option${optionCount}-name" class="error-message"></div>
-                <label for="option${optionCount}-ai">${translations[lang].labelOptionAI}</label>
-                <input type="text" id="option${optionCount}-ai" placeholder="np. 2">
-                <div id="error-option${optionCount}-ai" class="error-message"></div>
-                <label for="option${optionCount}-outcomes">${translations[lang].labelOptionOutcomes}</label>
-                <div id="option${optionCount}-outcomes">
-                    <div class="outcome">
-                        <select onchange="updateOutcomeValuePlaceholder('option${optionCount}-outcome1')">
-                            <option value="">${translations[lang].labelOptionOutcomes}</option>
-                            ${Object.entries(translations[lang].outcomes).map(([value, text]) => `<option value="${value}">${value} - ${text}</option>`).join('')}
-                        </select>
-                        <label for="option${optionCount}-outcome1-value">${translations[lang].labelOutcomeValue}</label>
-                        <input type="text" id="option${optionCount}-outcome1-value" placeholder="np. 10">
-                        <div id="error-option${optionCount}-outcome1-value" class="error-message"></div>
-                        <button class="remove-outcome" onclick="removeOutcome('option${optionCount}-outcomes', this)">${translations[lang].removeOutcomeButton}</button>
-                    </div>
+            const container = document.getElementById('options-container');
+            const div = document.createElement('div');
+            div.className = 'option';
+            div.innerHTML = `
+                <h3>Opcja ${++optionCount}</h3>
+                <input type="text" placeholder="Nazwa przycisku">
+                <input type="number" placeholder="AI probability (np. 50)">
+                
+                <div class="outcomes">
+                    <h4>Efekty:</h4>
+                    <button type="button" onclick="addOutcome(this)">+ Dodaj efekt</button>
                 </div>
-                <button class="add-outcome" onclick="addOutcome('option${optionCount}-outcomes')">${translations[lang].addOutcomeButton}</button>
+                <button class="remove-btn" onclick="this.parentElement.remove()">Usuń opcję / przycisk</button>
             `;
-            optionsDiv.appendChild(newOption);
-            outcomeCount[`option${optionCount}-outcomes`] = 1;
+            container.appendChild(div);
         }
 
-        function addOutcome(optionId) {
-            outcomeCount[optionId]++;
-            const outcomesDiv = document.getElementById(optionId);
-            const newOutcome = document.createElement('div');
-            newOutcome.className = 'outcome';
-            newOutcome.innerHTML = `
-                <select onchange="updateOutcomeValuePlaceholder('${optionId}-outcome${outcomeCount[optionId]}')">
-                    <option value="">${translations[lang].labelOptionOutcomes}</option>
-                    ${Object.entries(translations[lang].outcomes).map(([value, text]) => `<option value="${value}">${value} - ${text}</option>`).join('')}
+        function addOutcome(button) {
+            const outcomesDiv = button.previousElementSibling;
+            const div = document.createElement('div');
+            div.className = 'outcome';
+            div.innerHTML = `
+                <select>
+                    <option value="">Wybierz efekt...</option>
+                    ${outcomesList.map(outcome => `<option value="${outcome}">${outcome}</option>`).join('')}
                 </select>
-                <label for="${optionId}-outcome${outcomeCount[optionId]}-value">${translations[lang].labelOutcomeValue}</label>
-                <input type="text" id="${optionId}-outcome${outcomeCount[optionId]}-value" placeholder="np. 10">
-                <div id="error-${optionId}-outcome${outcomeCount[optionId]}-value" class="error-message"></div>
-                <button class="remove-outcome" onclick="removeOutcome('${optionId}', this)">${translations[lang].removeOutcomeButton}</button>
+                <input type="text" placeholder="Wartość (np. 100 lub ger=fra)">
+                <button class="remove-btn" onclick="this.parentElement.remove()">Usuń</button>
             `;
-            outcomesDiv.appendChild(newOutcome);
-        }
-
-        function removeOutcome(optionId, button) {
-            const outcomeDiv = button.parentElement;
-            outcomeDiv.remove();
-        }
-
-        function updateTriggerValuePlaceholder(triggerId) {
-            const triggerSelect = document.getElementById(`trigger${triggerId}`);
-            const triggerValueInput = document.getElementById(`trigger${triggerId}-value`);
-            const selectedTrigger = triggerSelect.value;
-
-            if (selectedTrigger === "civ_has_more_provinces_than_civ" || selectedTrigger === "civs_are_neighbors" || selectedTrigger === "civs_are_at_war" || selectedTrigger === "civs_have_alliance") {
-                triggerValueInput.placeholder = "np. fra=ger";
-            } else if (selectedTrigger === "province_controlled_by" || selectedTrigger === "province_not_controlled_by" || selectedTrigger === "province_civ_has_core") {
-                triggerValueInput.placeholder = "np. 1024=fra";
-            } else if (selectedTrigger === "province_religion_is" || selectedTrigger === "province_religion_is_not") {
-                triggerValueInput.placeholder = "np. 1";
-            } else if (selectedTrigger === "is_civ" || selectedTrigger === "declare_war2" || selectedTrigger === "has_variable") {
-                triggerValueInput.placeholder = "np. spa lub ger=pol";
-            } else {
-                triggerValueInput.placeholder = "np. 10";
-            }
-        }
-
-        function updateOutcomeValuePlaceholder(outcomeId) {
-            const outcomeSelect = document.getElementById(outcomeId);
-            const outcomeValueInput = document.getElementById(`${outcomeId}-value`);
-            const selectedOutcome = outcomeSelect.value;
-
-            if (selectedOutcome === "province_has_building" || selectedOutcome === "province_controlled_by" || selectedOutcome === "province_not_controlled_by" || selectedOutcome === "province_civ_has_core") {
-                outcomeValueInput.placeholder = "np. 1024=fra";
-            } else if (selectedOutcome === "province_religion_is" || selectedOutcome === "province_religion_is_not") {
-                outcomeValueInput.placeholder = "np. 1";
-            } else if (selectedOutcome === "province_is_capital" || selectedOutcome === "province_is_occupied" || selectedOutcome === "province_is_under_siege") {
-                outcomeValueInput.placeholder = "np. true/false";
-            } else {
-                outcomeValueInput.placeholder = "np. 10";
-            }
+            outcomesDiv.appendChild(div);
         }
 
         function validateFields() {
-            let isValid = true;
-
-            // Walidacja ID Eventu
-            const eventId = document.getElementById('event-id').value;
-            if (!eventId) {
-                document.getElementById('error-event-id').textContent = "Nie wpisałeś nic w ID Eventu!";
-                isValid = false;
-            } else {
-                document.getElementById('error-event-id').textContent = "";
+            const errors = [];
+            
+            if(!document.getElementById('event-id').value) errors.push("ID eventu jest wymagane!");
+            if(!document.getElementById('event-title').value) errors.push("Tytuł eventu jest wymagany!");
+            if(!document.getElementById('event-desc').value) errors.push("Opis eventu jest wymagany!");
+            
+            if(document.getElementById('show-in-missions').checked && !document.getElementById('mission-image').value) {
+                errors.push("Wymagane jest podanie obrazka misji!");
             }
 
-            // Walidacja Tytułu Eventu
-            const eventTitle = document.getElementById('event-title').value;
-            if (!eventTitle) {
-                document.getElementById('error-event-title').textContent = "Nie wpisałeś nic w Tytuł Eventu!";
-                isValid = false;
-            } else {
-                document.getElementById('error-event-title').textContent = "";
-            }
+            const triggers = document.querySelectorAll('.trigger');
+            if(triggers.length === 0) errors.push("Dodaj przynajmniej jeden trigger!");
+            
+            triggers.forEach(trigger => {
+                const select = trigger.querySelector('select');
+                const input = trigger.querySelector('input');
+                if(!select.value || !input.value) errors.push("Niekompletny trigger!");
+            });
 
-            // Walidacja Opisu Eventu
-            const eventDesc = document.getElementById('event-desc').value;
-            if (!eventDesc) {
-                document.getElementById('error-event-desc').textContent = "Nie wpisałeś nic w Opis Eventu!";
-                isValid = false;
-            } else {
-                document.getElementById('error-event-desc').textContent = "";
-            }
+            const options = document.querySelectorAll('.option');
+            if(options.length === 0) errors.push("Dodaj przynajmniej jedną opcję!");
+            
+            options.forEach(option => {
+                if(!option.querySelector('input[type="text"]').value) errors.push("Brak nazwy dla opcji!");
+                if(!option.querySelector('input[type="number"]').value) errors.push("Brak wartości AI dla opcji!");
+                
+                const outcomes = option.querySelectorAll('.outcome');
+                if(outcomes.length === 0) errors.push("Dodaj przynajmniej jeden efekt do opcji!");
+            });
 
-            // Walidacja Obrazu Eventu
-            const eventImage = document.getElementById('event-image').value;
-            if (!eventImage) {
-                document.getElementById('error-event-image').textContent = "Nie wpisałeś nic w Obraz Eventu!";
-                isValid = false;
-            } else {
-                document.getElementById('error-event-image').textContent = "";
-            }
-
-            // Walidacja Warunków Wyzwalających
-            for (let i = 1; i <= triggerCount; i++) {
-                const triggerSelect = document.getElementById(`trigger${i}`);
-                const triggerValue = document.getElementById(`trigger${i}-value`).value;
-                if (triggerSelect.value && !triggerValue) {
-                    document.getElementById(`error-trigger${i}-value`).textContent = "Nie wpisałeś wartości warunku!";
-                    isValid = false;
-                } else {
-                    document.getElementById(`error-trigger${i}-value`).textContent = "";
-                }
-            }
-
-            // Walidacja Opcji Przycisków
-            for (let i = 1; i <= optionCount; i++) {
-                const optionName = document.getElementById(`option${i}-name`).value;
-                const optionAI = document.getElementById(`option${i}-ai`).value;
-                if (!optionName) {
-                    document.getElementById(`error-option${i}-name`).textContent = "Nie wpisałeś nazwy przycisku!";
-                    isValid = false;
-                } else {
-                    document.getElementById(`error-option${i}-name`).textContent = "";
-                }
-                if (!optionAI) {
-                    document.getElementById(`error-option${i}-ai`).textContent = "Nie wpisałeś wartości AI!";
-                    isValid = false;
-                } else {
-                    document.getElementById(`error-option${i}-ai`).textContent = "";
-                }
-
-                // Walidacja Efektów
-                const outcomesDiv = document.getElementById(`option${i}-outcomes`);
-                if (outcomesDiv) {
-                    const outcomeElements = outcomesDiv.querySelectorAll('.outcome');
-                    outcomeElements.forEach((outcome, index) => {
-                        const outcomeSelect = outcome.querySelector('select');
-                        const outcomeValue = outcome.querySelector('input[type="text"]').value;
-                        if (outcomeSelect.value && !outcomeValue) {
-                            document.getElementById(`error-option${i}-outcome${index + 1}-value`).textContent = "Nie wpisałeś wartości efektu!";
-                            isValid = false;
-                        } else {
-                            document.getElementById(`error-option${i}-outcome${index + 1}-value`).textContent = "";
-                        }
-                    });
-                }
-            }
-
-            return isValid;
+            return errors;
         }
 
         function generateEvent() {
-            if (!validateFields()) {
-                return; // Zatrzymaj generowanie, jeśli walidacja nie powiedzie się
+            const errors = validateFields();
+            const errorDiv = document.getElementById('error-message');
+            
+            if(errors.length > 0) {
+                errorDiv.innerHTML = errors.join('<br>');
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            errorDiv.style.display = 'none';
+
+            let eventCode = `id=${document.getElementById('event-id').value}\n`;
+            eventCode += `title=${document.getElementById('event-title').value}\n`;
+            eventCode += `desc=${document.getElementById('event-desc').value}\n`;
+            
+            if(document.getElementById('event-image').value) {
+                eventCode += `image=${document.getElementById('event-image').value}\n`;
             }
 
-            const eventId = document.getElementById('event-id').value;
-            const eventTitle = document.getElementById('event-title').value;
-            const eventDesc = document.getElementById('event-desc').value;
-            const eventImage = document.getElementById('event-image').value;
-
-            let triggers = '';
-            for (let i = 1; i <= triggerCount; i++) {
-                const triggerSelect = document.getElementById(`trigger${i}`);
-                const triggerValue = document.getElementById(`trigger${i}-value`).value;
-                if (triggerSelect.value && triggerValue) {
-                    triggers += `next_and\n${triggerSelect.value}=${triggerValue}\n`;
-                }
+            // Zawsze dodajemy show_in_missions
+            eventCode += `show_in_missions=${document.getElementById('show-in-missions').checked}\n`;
+            
+            if(document.getElementById('show-in-missions').checked) {
+                eventCode += `mission_image=${document.getElementById('mission-image').value}\n`;
             }
 
-            let options = '';
-            for (let i = 1; i <= optionCount; i++) {
-                const optionName = document.getElementById(`option${i}-name`).value;
-                const optionAI = document.getElementById(`option${i}-ai`).value;
-                const outcomesDiv = document.getElementById(`option${i}-outcomes`);
-                let outcomes = '';
-                if (outcomesDiv) {
-                    const outcomeElements = outcomesDiv.querySelectorAll('.outcome');
-                    outcomeElements.forEach(outcome => {
-                        const outcomeSelect = outcome.querySelector('select');
-                        const outcomeValue = outcome.querySelector('input[type="text"]').value;
-                        if (outcomeSelect.value && outcomeValue) {
-                            outcomes += `${outcomeSelect.value}=${outcomeValue}\n`;
-                        }
-                    });
-                }
-                if (optionName && optionAI && outcomes) {
-                    options += `option_btn\nname=${optionName}\nai=${optionAI}\n${outcomes}option_end\n`;
-                }
-            }
+            // Zawsze dodajemy only_once
+            eventCode += `only_once=${document.getElementById('only-once').checked}\n`;
 
-            const eventCode = `
-id=${eventId}
-title=${eventTitle}
-desc=${eventDesc}
+            eventCode += '\ntrigger_and\n';
+            document.querySelectorAll('.trigger').forEach(trigger => {
+                eventCode += `next_and\n${trigger.querySelector('select').value}=${trigger.querySelector('input').value}\n`;
+            });
+            eventCode += 'trigger_and_end\n\n';
 
-image=${eventImage}
+            document.querySelectorAll('.option').forEach(option => {
+                eventCode += 'option_btn\n';
+                eventCode += `name=${option.querySelector('input[type="text"]').value}\n`;
+                eventCode += `ai=${option.querySelector('input[type="number"]').value}\n`;
+                
+                option.querySelectorAll('.outcome').forEach(outcome => {
+                    const select = outcome.querySelector('select');
+                    const input = outcome.querySelector('input');
+                    eventCode += `${select.value}=${input.value}\n`;
+                });
+                
+                eventCode += 'option_end\n\n';
+            });
 
-show_in_missions=false
-mission_image=2
-
-only_once=true
-
-trigger_and
-${triggers}trigger_and_end
-
-${options}
-            `;
-
-            document.getElementById('output-event').textContent = eventCode;
+            document.getElementById('output').textContent = eventCode;
         }
-
-        // Inicjalizacja domyślnego języka
-        changeLanguage(lang);
     </script>
 </body>
 </html>
