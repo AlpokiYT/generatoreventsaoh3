@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AoH3 Event Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #1e1e1e;
+            color: #ffffff;
+        }
+
+        .container {
+            background: #2d2d2d;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            color: #4caf50;
+            text-align: center;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            border: 1px solid #444;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .error {
+            color: #ff4444;
+            font-size: 0.9em;
+            display: none;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background-color: #3d3d3d;
+            color: #ffffff;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        button.remove-btn {
+            background-color: #ff4444;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .links {
+            margin-top: 20px;
+            padding: 15px;
+            background: #3d3d3d;
+            border-radius: 5px;
+        }
+
+        .links a {
+            display: block;
+            margin: 5px 0;
+            color: #4caf50;
+            text-decoration: none;
+        }
+
+        #output {
+            white-space: pre-wrap;
+            background: #3d3d3d;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            color: #ffffff;
+        }
+
+        .trigger, .option, .outcome {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background-color: #3d3d3d;
+        }
+
+        .checkbox-group {
+            margin: 15px 0;
+            display: flex;
+            gap: 20px;
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            margin: 0;
+            cursor: pointer;
+            accent-color: #4caf50;
+        }
+
+        #mission-image-group {
+            margin-top: 10px;
+        }
+
+        .description {
+            font-size: 0.8em;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        .custom-field {
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Event Generator - Age of History 3</h1>
+        
+        <div class="links">
+            <h3>Official Sources:</h3>
+            <a href="http://www.ageofcivilizationsgame.com/topic/249748-age-of-history-3-how-to-add-an-event/" target="_blank">How to add events/How events work</a>
+            <a href="http://www.ageofcivilizationsgame.com/topic/248695-age-of-history-3-events-triggers/" target="_blank">List of triggers</a>
+            <a href="http://www.ageofcivilizationsgame.com/topic/248694-age-of-history-3-events-outcomes/" target="_blank">List of outcomes</a>
+        </div>
+
+        <div class="section">
+            <h2>Basic Information</h2>
+            <input type="text" id="event-id" placeholder="Event ID (e.g. unique_event_123)" required>
+            <input type="text" id="event-title" placeholder="Event title" required>
+            <textarea id="event-desc" placeholder="Event description" rows="3" required></textarea>
+            <input type="text" id="event-image" placeholder="Image path (e.g. event1.png)" required>
+            
+            <div class="checkbox-group">
+                <label>
+                    <input type="checkbox" id="show-in-missions" onchange="toggleMissionImage()">
+                    <span>Show in missions</span>
+                </label>
+                <label>
+                    <input type="checkbox" id="only-once" checked>
+                    <span>Only once</span>
+                </label>
+            </div>
+            
+            <div id="mission-image-group">
+                <input type="text" id="mission-image" placeholder="Mission image number (e.g. 2)">
+                <div class="description">Required when "Show in missions" is active</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Trigger Conditions (Triggers)
+                <button type="button" onclick="addTrigger()">+ Add Trigger</button>
+            </h2>
+            <div id="triggers-container"></div>
+        </div>
+
+        <div class="section">
+            <h2>Options/Buttons
+                <button type="button" onclick="addOption()">+ Add Option/Button</button>
+            </h2>
+            <div id="options-container"></div>
+        </div>
+
+        <div id="error-message" class="error"></div>
+        <button onclick="generateEvent()" style="background-color: #4caf50">Generate Event</button>
+        
+        <div id="output"></div>
+    </div>
+
+    <script>
+        const triggersList = [
+            {code: "custom", desc: "Custom trigger"},
+            {code: "invested_in_economy_over", desc: "Economy investments exceed X"},
+            {code: "invested_in_economy_below", desc: "Economy investments below X"},
+            {code: "increased_growth_rate_over", desc: "Growth rate exceeds X"},
+            {code: "increased_growth_rate_below", desc: "Growth rate below X"},
+            {code: "increased_tax_efficiency_over", desc: "Tax efficiency exceeds X"},
+            {code: "increased_tax_efficiency_below", desc: "Tax efficiency below X"},
+            {code: "increased_manpower_over", desc: "Manpower exceeds X"},
+            {code: "increased_manpower_below", desc: "Manpower below X"},
+            {code: "developed_infrastructure_over", desc: "Infrastructure development exceeds X"},
+            {code: "developed_infrastructure_below", desc: "Infrastructure development below X"},
+            {code: "buildings_constructed_over", desc: "More than X buildings constructed"},
+            {code: "buildings_constructed_below", desc: "Less than X buildings constructed"},
+            {code: "civ_conquered_provinces_over", desc: "Civilization conquered more than X provinces"},
+            {code: "civ_conquered_provinces_below", desc: "Civilization conquered less than X provinces"},
+            {code: "is_player", desc: "Player is controlling the civilization"},
+            {code: "is_not_player", desc: "Player is NOT controlling the civilization"},
+            {code: "civ_religion_is", desc: "Civilization has religion with ID X"},
+            {code: "civ_government_is", desc: "Civilization has government with ID X"},
+            {code: "random_chance", desc: "XX.X% random chance"},
+            {code: "civ_population_over", desc: "Total population exceeds X,XXX,XXX"},
+            {code: "civ_gold_over", desc: "Total gold exceeds X"},
+            {code: "civ_allies_over", desc: "Has more than X allies"},
+            {code: "civ_rank_position_over", desc: "Rank position higher than X"}
+        ];
+
+        const outcomesList = [
+            {code: "custom", desc: "Custom outcome"},
+            {code: "gold", desc: "Add/remove gold"},
+            {code: "legacy", desc: "Add legacy points"},
+            {code: "research", desc: "Add research points"},
+            {code: "manpower", desc: "Add manpower"},
+            {code: "declare_war", desc: "Declare war"},
+            {code: "add_alliance", desc: "Form alliance"},
+            {code: "change_government", desc: "Change government type"},
+            {code: "annex", desc: "Annex provinces"},
+            {code: "add_vassal", desc: "Create vassal"},
+            {code: "run_event", desc: "Trigger another event"},
+            {code: "add_general", desc: "Add general"},
+            {code: "change_religion", desc: "Change state religion"},
+            {code: "bonus_growth_rate", desc: "Temporary growth bonus"},
+            {code: "price_change", desc: "Change resource prices"}
+        ];
+
+        let triggerCount = 0;
+        let optionCount = 0;
+
+        function toggleMissionImage() {
+            const missionImageGroup = document.getElementById('mission-image-group');
+            missionImageGroup.style.display = document.getElementById('show-in-missions').checked ? 'block' : 'none';
+        }
+
+        function handleCustomInput(selectElement) {
+            const container = selectElement.parentElement;
+            const customInput = container.querySelector('.custom-field');
+            customInput.style.display = (selectElement.value === "custom") ? 'block' : 'none';
+        }
+
+        function addTrigger() {
+            const container = document.getElementById('triggers-container');
+            const div = document.createElement('div');
+            div.className = 'trigger';
+            div.innerHTML = `
+                <select class="trigger-select" onchange="handleCustomInput(this)">
+                    <option value="">Select trigger...</option>
+                    ${triggersList.map(trigger => `
+                        <option value="${trigger.code}">
+                            ${trigger.code} - ${trigger.desc}
+                        </option>
+                    `).join('')}
+                </select>
+                <input type="text" class="custom-field" placeholder="Custom trigger name" style="display: none">
+                <div class="description">Enter value</div>
+                <input type="text" placeholder="Value (e.g. 100)" required>
+                <button class="remove-btn" onclick="this.parentElement.remove()">Remove</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function addOption() {
+            const container = document.getElementById('options-container');
+            const div = document.createElement('div');
+            div.className = 'option';
+            div.innerHTML = `
+                <h3>Option/Button ${++optionCount}</h3>
+                <input type="text" placeholder="Option name" required>
+                <input type="number" placeholder="AI chance (1-100)" min="1" max="100" required>
+                
+                <div class="outcomes">
+                    <h4>Outcomes:</h4>
+                    <button type="button" onclick="addOutcome(this)">+ Add outcome</button>
+                </div>
+                <button class="remove-btn" onclick="this.parentElement.remove()">Remove</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function addOutcome(button) {
+            const outcomesDiv = button.previousElementSibling;
+            const div = document.createElement('div');
+            div.className = 'outcome';
+            div.innerHTML = `
+                <select onchange="handleCustomInput(this)">
+                    <option value="">Select outcome...</option>
+                    ${outcomesList.map(outcome => `
+                        <option value="${outcome.code}">
+                            ${outcome.code} - ${outcome.desc}
+                        </option>
+                    `).join('')}
+                </select>
+                <input type="text" class="custom-field" placeholder="Custom outcome name" style="display: none">
+                <div class="description">Enter outcome value</div>
+                <input type="text" placeholder="Value (e.g. 100)" required>
+                <button class="remove-btn" onclick="this.parentElement.remove()">Remove</button>
+            `;
+            outcomesDiv.appendChild(div);
+        }
+
+        function validateFields() {
+            const errors = [];
+            
+            if(!document.getElementById('event-id').value) errors.push("Event ID is required!");
+            if(!document.getElementById('event-title').value) errors.push("Event title is required!");
+            if(!document.getElementById('event-desc').value) errors.push("Event description is required!");
+            if(!document.getElementById('event-image').value) errors.push("Image path is required!");
+            
+            if(document.getElementById('show-in-missions').checked && !document.getElementById('mission-image').value) {
+                errors.push("Mission image number is required!");
+            }
+
+            const triggers = document.querySelectorAll('.trigger');
+            if(triggers.length === 0) errors.push("Add at least one trigger!");
+            
+            triggers.forEach(trigger => {
+                const select = trigger.querySelector('select');
+                const input = trigger.querySelector('input[type="text"]:not(.custom-field)');
+                if(!select.value || !input.value) errors.push("Incomplete trigger!");
+            });
+
+            const options = document.querySelectorAll('.option');
+            if(options.length === 0) errors.push("Add at least one option!");
+            
+            options.forEach(option => {
+                if(!option.querySelector('input[type="text"]').value) errors.push("Missing option name!");
+                const aiValue = option.querySelector('input[type="number"]').value;
+                if(!aiValue) errors.push("Missing AI chance value!");
+                
+                const outcomes = option.querySelectorAll('.outcome');
+                if(outcomes.length === 0) errors.push("Add at least one outcome to option!");
+            });
+
+            return errors;
+        }
+
+        function generateEvent() {
+            const errors = validateFields();
+            const errorDiv = document.getElementById('error-message');
+            
+            if(errors.length > 0) {
+                errorDiv.innerHTML = errors.join('<br>');
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            errorDiv.style.display = 'none';
+
+            let eventCode = `id=${document.getElementById('event-id').value}\n`;
+            eventCode += `title=${document.getElementById('event-title').value}\n`;
+            eventCode += `desc=${document.getElementById('event-desc').value}\n`;
+            eventCode += `image=${document.getElementById('event-image').value}\n`;
+            eventCode += `show_in_missions=${document.getElementById('show-in-missions').checked}\n`;
+            
+            if(document.getElementById('show-in-missions').checked) {
+                eventCode += `mission_image=${document.getElementById('mission-image').value}\n`;
+            }
+
+            eventCode += `only_once=${document.getElementById('only-once').checked}\n\n`;
+
+            eventCode += "trigger_and\n";
+            document.querySelectorAll('.trigger').forEach(trigger => {
+                const select = trigger.querySelector('select');
+                const customName = trigger.querySelector('.custom-field');
+                const value = trigger.querySelector('input[type="text"]:not(.custom-field)').value;
+                
+                const type = select.value === "custom" 
+                    ? customName.value 
+                    : select.value;
+                
+                eventCode += `next_and\n${type}=${value}\n`;
+            });
+            eventCode += "trigger_and_end\n\n";
+
+            document.querySelectorAll('.option').forEach(option => {
+                eventCode += "option_btn\n";
+                eventCode += `name=${option.querySelector('input[type="text"]').value}\n`;
+                eventCode += `ai=${option.querySelector('input[type="number"]').value}\n`;
+                
+                option.querySelectorAll('.outcome').forEach(outcome => {
+                    const select = outcome.querySelector('select');
+                    const customName = outcome.querySelector('.custom-field');
+                    const value = outcome.querySelector('input[type="text"]:not(.custom-field)').value;
+                    
+                    const type = select.value === "custom" 
+                        ? customName.value 
+                        : select.value;
+                    
+                    eventCode += `${type}=${value}\n`;
+                });
+                
+                eventCode += "option_end\n\n";
+            });
+
+            document.getElementById('output').textContent = eventCode;
+        }
+    </script>
+</body>
+</html>

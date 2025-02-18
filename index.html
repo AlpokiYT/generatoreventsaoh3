@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Selection - AoH3 Event Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1e1e1e;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 5vh;
+        }
+
+        h1 {
+            color: #4caf50;
+            margin-bottom: 3rem;
+            font-size: 2.5rem;
+        }
+
+        .flags-container {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .flag-link {
+            transition: transform 0.3s ease;
+            text-decoration: none;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .flag-link:hover {
+            transform: scale(1.05);
+        }
+
+        .flag {
+            width: 300px;
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            border: 3px solid #444;
+            border-radius: 8px;
+            transition: border-color 0.3s ease;
+        }
+
+        .flag:hover {
+            border-color: #4caf50;
+        }
+
+        #poland-flag {
+            background-image: url('https://upload.wikimedia.org/wikipedia/en/1/12/Flag_of_Poland.svg');
+        }
+
+        #uk-flag {
+            background-image: url('https://upload.wikimedia.org/wikipedia/en/a/ae/Flag_of_the_United_Kingdom.svg');
+        }
+
+        .language-label {
+            display: block;
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            color: #ffffff;
+        }
+
+        @media (max-width: 768px) {
+            .flags-container {
+                flex-direction: column;
+                gap: 2rem;
+            }
+            
+            .flag {
+                width: 250px;
+                height: 166px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Wybierz Język / Choose Language</h1>
+        
+        <div class="flags-container">
+            <a href="PL.html" class="flag-link">
+                <div class="flag" id="poland-flag"></div>
+                <span class="language-label">Polski</span>
+            </a>
+            
+            <a href="EN.html" class="flag-link">
+                <div class="flag" id="uk-flag"></div>
+                <span class="language-label">English</span>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

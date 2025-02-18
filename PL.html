@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Eventów AoH3</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #1e1e1e;
+            color: #ffffff;
+        }
+
+        .container {
+            background: #2d2d2d;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            color: #4caf50;
+            text-align: center;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            border: 1px solid #444;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .error {
+            color: #ff4444;
+            font-size: 0.9em;
+            display: none;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background-color: #3d3d3d;
+            color: #ffffff;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        button.remove-btn {
+            background-color: #ff4444;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .links {
+            margin-top: 20px;
+            padding: 15px;
+            background: #3d3d3d;
+            border-radius: 5px;
+        }
+
+        .links a {
+            display: block;
+            margin: 5px 0;
+            color: #4caf50;
+            text-decoration: none;
+        }
+
+        #output {
+            white-space: pre-wrap;
+            background: #3d3d3d;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            color: #ffffff;
+        }
+
+        .trigger, .option, .outcome {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background-color: #3d3d3d;
+        }
+
+        .checkbox-group {
+            margin: 15px 0;
+            display: flex;
+            gap: 20px;
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            margin: 0;
+            cursor: pointer;
+            accent-color: #4caf50;
+        }
+
+        #mission-image-group {
+            margin-top: 10px;
+        }
+
+        .description {
+            font-size: 0.8em;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        .custom-field {
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Generator Eventów - Age of History 3</h1>
+        
+        <div class="links">
+            <h3>Oficjalne źródła:</h3>
+			<a href="http://www.ageofcivilizationsgame.com/topic/249748-age-of-history-3-how-to-add-an-event/" target="_blank">Jak dodać event / Jak działa event</a>
+            <a href="http://www.ageofcivilizationsgame.com/topic/248695-age-of-history-3-events-triggers/" target="_blank">Lista triggerów</a>
+            <a href="http://www.ageofcivilizationsgame.com/topic/248694-age-of-history-3-events-outcomes/" target="_blank">Lista efektów</a>
+        </div>
+
+        <div class="section">
+            <h2>Podstawowe informacje</h2>
+            <input type="text" id="event-id" placeholder="ID eventu (np. unique_event_123)" required>
+            <input type="text" id="event-title" placeholder="Tytuł eventu" required>
+            <textarea id="event-desc" placeholder="Opis eventu" rows="3" required></textarea>
+            <input type="text" id="event-image" placeholder="Ścieżka do obrazka (np. event1.png)" required>
+            
+            <div class="checkbox-group">
+                <label>
+                    <input type="checkbox" id="show-in-missions" onchange="toggleMissionImage()">
+                    <span>Pokaż w misjach</span>
+                </label>
+                <label>
+                    <input type="checkbox" id="only-once" checked>
+                    <span>Tylko raz</span>
+                </label>
+            </div>
+            
+            <div id="mission-image-group">
+                <input type="text" id="mission-image" placeholder="Numer obrazka misji (np. 2)">
+                <div class="description">Wymagane gdy "Pokaż w misjach" jest aktywne</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Warunki wyzwalające (Triggery)
+                <button type="button" onclick="addTrigger()">+ Dodaj trigger</button>
+            </h2>
+            <div id="triggers-container"></div>
+        </div>
+
+        <div class="section">
+            <h2>Opcje / Przyciski
+                <button type="button" onclick="addOption()">+ Dodaj opcję/przycisk</button>
+            </h2>
+            <div id="options-container"></div>
+        </div>
+
+        <div id="error-message" class="error"></div>
+        <button onclick="generateEvent()" style="background-color: #4caf50">Generuj Event</button>
+        
+        <div id="output"></div>
+    </div>
+
+    <script>
+        // Zaktualizowane triggery
+        const triggersList = [
+            {code: "custom", desc: "Niestandardowy trigger"},
+			{code: "invested_in_economy_over", desc: "Inwestycje w gospodarkę przekraczają X"},
+			{code: "invested_in_economy_below", desc: "Inwestycje w gospodarkę poniżej X"},
+			{code: "increased_growth_rate_over", desc: "Wzrost wskaźnika rozwoju przekracza X"},
+			{code: "increased_growth_rate_below", desc: "Wzrost wskaźnika rozwoju poniżej X"},
+			{code: "increased_tax_efficiency_over", desc: "Efektywność podatkowa przekracza X"},
+			{code: "increased_tax_efficiency_below", desc: "Efektywność podatkowa poniżej X"},
+			{code: "increased_manpower_over", desc: "Siła robocza przekracza X"},
+			{code: "increased_manpower_below", desc: "Siła robocza poniżej X"},
+			{code: "developed_infrastructure_over", desc: "Infrastruktura rozwoju przekracza X"},
+			{code: "developed_infrastructure_below", desc: "Infrastruktura rozwoju poniżej X"},
+
+			{code: "buildings_constructed_over", desc: "Zbudowano więcej niż X budynków"},
+			{code: "buildings_constructed_below", desc: "Zbudowano mniej niż X budynków"},
+			{code: "administrative_buildings_constructed_over", desc: "Zbudowano więcej niż X budynków administracyjnych"},
+			{code: "administrative_buildings_constructed_below", desc: "Zbudowano mniej niż X budynków administracyjnych"},
+			{code: "economy_buildings_constructed_over", desc: "Zbudowano więcej niż X budynek gospodarczy"},
+			{code: "economy_buildings_constructed_below", desc: "Zbudowano mniej niż X budynków gospodarczych"},
+			{code: "military_buildings_constructed_over", desc: "Zbudowano więcej niż X budynki wojskowe"},
+			{code: "military_buildings_constructed_below", desc: "Zbudowano mniej niż X budynków wojskowych"},
+			{code: "unique_capital_buildings_constructed_over", desc: "Zbudowano więcej niż X unikalny budynek stolicy"},
+			{code: "unique_capital_buildings_constructed_below", desc: "Zbudowano mniej niż X unikalne budynki stolicy"},
+
+			{code: "civ_conquered_provinces_over", desc: "Więcej niż X zdobytych prowincji przez cywilizację"},
+			{code: "civ_conquered_provinces_below", desc: "Mniej niż X zdobytych prowincji przez cywilizację"},
+
+			{code: "civ_wars_total_over", desc: "Cywilizacja brała udział w więcej niż X wojnach"},
+			{code: "civ_wars_total_below", desc: "Cywilizacja brała udział w mniej niż X wojnach"},
+
+			{code: "is_player", desc: "Gracz gra jako cywilizacja CIV"},
+			{code: "is_not_player", desc: "Gracz nie gra jako cywilizacja CIV"},
+
+			{code: "civ_religion_is", desc: "Cywilizacja ma religię o ID X"},
+			{code: "civ_tag_religion_is", desc: "Cywilizacja o tagu 'civ' ma religię o ID X"},
+			{code: "civ_tag_religion_is_not", desc: "Cywilizacja o tagu 'civ' nie ma religii o ID X"},
+
+			{code: "civ_government_is", desc: "Cywilizacja ma rząd o ID X"},
+			{code: "civ_tag_government_is", desc: "Cywilizacja o tagu 'civ' ma rząd o ID X"},
+			{code: "civ_tag_government_is_not", desc: "Cywilizacja o tagu 'civ' nie ma rządu o ID X"},
+
+			{code: "civ_provinces_over", desc: "Cywilizacja posiada więcej niż X prowincji"},
+			{code: "civ_provinces_below", desc: "Cywilizacja posiada mniej niż X prowincji"},
+			{code: "civ_provinces_equals", desc: "Cywilizacja posiada dokładnie X prowincji"},
+
+			{code: "civ_population_over", desc: "Całkowita liczba ludności cywilizacji przekracza X,XXX,XXX"},
+			{code: "civ_population_below", desc: "Całkowita liczba ludności cywilizacji poniżej X,XXX,XXX"},
+
+			{code: "civ_economy_over", desc: "Całkowita gospodarka cywilizacji przekracza X"},
+			{code: "civ_economy_below", desc: "Całkowita gospodarka cywilizacji poniżej X"},
+
+			{code: "civ_gold_over", desc: "Całkowita ilość złota cywilizacji przekracza X"},
+			{code: "civ_gold_below", desc: "Całkowita ilość złota cywilizacji poniżej X"},
+
+			{code: "civ_allies_over", desc: "Cywilizacja ma więcej niż X sojuszników"},
+			{code: "civ_allies_below", desc: "Cywilizacja ma mniej niż X sojusznika"},
+
+			{code: "civ_defensive_pacts_over", desc: "Cywilizacja ma więcej niż X pakt obronny"},
+			{code: "civ_defensive_pacts_below", desc: "Cywilizacja ma mniej niż X pakt obronny"},
+
+			{code: "civ_non_aggression_pacts_over", desc: "Cywilizacja ma więcej niż X pakt o nieagresji"},
+			{code: "civ_non_aggression_pacts_below", desc: "Cywilizacja ma mniej niż X pakt o nieagresji"},
+
+			{code: "civ_vassals_over", desc: "Cywilizacja ma więcej niż X wasali"},
+			{code: "civ_vassals_below", desc: "Cywilizacja ma mniej niż X wasali"},
+
+			{code: "civ_neighbors_over", desc: "Cywilizacja ma więcej niż X sąsiadów"},
+			{code: "civ_neighbors_below", desc: "Cywilizacja ma mniej niż X sąsiadów"},
+
+			{code: "random_chance", desc: "Losowo XX.X% szansy na spełnienie"},
+
+			{code: "is_civ", desc: "Cywilizacja ma tag 'civ'"},
+			{code: "is_civ", desc: "Cywilizacja ma tag 'civ_m'"},
+
+			{code: "civ_total_income_over", desc: "Całkowity dochód cywilizacji przekracza X"},
+			{code: "civ_total_income_below", desc: "Całkowity dochód cywilizacji poniżej X"},
+
+			{code: "civ_income_taxation_over", desc: "Dochody z podatków cywilizacji przekraczają X"},
+			{code: "civ_income_taxation_below", desc: "Dochody z podatków cywilizacji poniżej X"},
+
+			{code: "civ_income_economy_over", desc: "Dochód cywilizacji z gospodarki przekracza X"},
+			{code: "civ_income_economy_below", desc: "Dochód cywilizacji z gospodarki poniżej X"},
+
+			{code: "civ_income_production_over", desc: "Dochód cywilizacji z produkcji przekracza X"},
+			{code: "civ_income_production_below", desc: "Dochód cywilizacji z produkcji poniżej X"},
+
+			{code: "civ_legacy_per_month_over", desc: "Cywilizacja ma więcej niż X.X dziedzictwa miesięcznie"},
+			{code: "civ_legacy_per_month_below", desc: "Cywilizacja ma mniej niż X.X dziedzictwa miesięcznie"},
+
+			{code: "civ_research_per_month_over", desc: "Cywilizacja ma więcej niż X.X badań miesięcznie"},
+			{code: "civ_research_per_month_below", desc: "Cywilizacja ma mniej niż X.X badań miesięcznie"},
+
+			{code: "civ_diplomacy_over", desc: "Cywilizacja ma więcej niż X punktów dyplomatycznych"},
+			{code: "civ_diplomacy_below", desc: "Cywilizacja ma mniej niż X punktów dyplomatycznych"},
+
+			{code: "civ_loans_over", desc: "Cywilizacja ma więcej niż X pożyczek"},
+			{code: "civ_loans_below", desc: "Cywilizacja ma mniej niż X pożyczki"},
+
+			{code: "civ_inflation_over", desc: "Cywilizacja ma inflację powyżej X"},
+			{code: "civ_inflation_below", desc: "Cywilizacja ma inflację poniżej X"},
+
+			{code: "civ_legacy_over", desc: "Cywilizacja ma więcej niż X dziedzictwa"},
+			{code: "civ_legacy_below", desc: "Cywilizacja ma mniej niż X dziedzictwa"},
+
+			{code: "civ_unlocked_legacies_over", desc: "Cywilizacja ma więcej niż X odblokowane dziedzictwa"},
+			{code: "civ_unlocked_legacies_below", desc: "Cywilizacja ma mniej niż X odblokowane dziedzictwa"},
+
+			{code: "civ_unlocked_technologies_over", desc: "Cywilizacja ma więcej niż X odblokowane technologie"},
+			{code: "civ_unlocked_technologies_below", desc: "Cywilizacja ma mniej niż X odblokowane technologie"},
+
+			{code: "civ_unlocked_advantages_over", desc: "Cywilizacja ma więcej niż X odblokowane przewagi"},
+			{code: "civ_unlocked_advantages_below", desc: "Cywilizacja ma mniej niż X odblokowaną przewagę"},
+
+			{code: "civ_rank_position_over", desc: "Pozycja cywilizacji w rankingu jest większa niż X"},
+			{code: "civ_rank_position_below", desc: "Pozycja cywilizacji w rankingu jest mniejsza niż X"},
+
+			{code: "civ_prestige_over", desc: "Cywilizacja ma prestiż większy niż X"},
+			{code: "civ_prestige_below", desc: "Cywilizacja ma prestiż mniejszy niż X"},
+
+        ];
+
+        // Zaktualizowane efekty
+        const outcomesList = [
+            {code: "custom", desc: "Niestandardowy efekt"},
+			{code: "play_music", desc: "Odtwarza plik muzyczny z katalogu audio/music/ lub moda"},
+			{code: "gold", desc: "Ustawia ilość złota dla cywilizacji"},
+			{code: "gold_monthly_income", desc: "Dodaje miesięczny dochód złota"},
+			{code: "legacy", desc: "Dodaje punkty dziedzictwa dla cywilizacji"},
+			{code: "legacy_monthly", desc: "Dodaje miesięczny przyrost punktów dziedzictwa"},
+			{code: "player_set_civ", desc: "Zmienia cywilizację, którą kontroluje gracz"},
+			{code: "research", desc: "Dodaje punkty badań dla cywilizacji"},
+			{code: "advantage_points", desc: "Dodaje punkty przewagi"},
+			{code: "manpower", desc: "Dodaje zasoby ludzkie do cywilizacji"},
+			{code: "inflation", desc: "Zwiększa lub zmniejsza inflację"},
+			{code: "ai_aggression", desc: "Zmienia poziom agresji AI (od -1000 do 1000)"},
+			{code: "ae_set", desc: "Ustawia poziom ekspansji agresywnej dla cywilizacji"},
+			{code: "move_capital", desc: "Przenosi stolicę cywilizacji do określonej prowincji"},
+			{code: "declare_war", desc: "Cywilizacja wypowiada wojnę wskazanej nacji"},
+			{code: "declare_war2", desc: "Jedna cywilizacja wypowiada wojnę drugiej"},
+			{code: "add_alliance", desc: "Dodaje sojusz między dwiema cywilizacjami"},
+			{code: "add_non_aggression", desc: "Podpisuje pakt o nieagresji między dwiema cywilizacjami"},
+			{code: "add_military_access", desc: "Daje dostęp wojskowy jednej cywilizacji do drugiej"},
+			{code: "add_guarantee", desc: "Gwarantuje niepodległość innej cywilizacji"},
+			{code: "add_defensive_pact", desc: "Tworzy pakt obronny między dwiema cywilizacjami"},
+			{code: "add_truce", desc: "Podpisuje rozejm między dwiema cywilizacjami"},
+			{code: "change_ideology", desc: "Zmienia ideologię cywilizacji"},
+			{code: "change_ideology_civ", desc: "Zmienia ideologię konkretnej cywilizacji"},
+			{code: "change_religion", desc: "Zmienia religię cywilizacji"},
+			{code: "change_religion_civ", desc: "Zmienia religię konkretnej cywilizacji"},
+			{code: "annex", desc: "Aneksja wskazanych prowincji"},
+			{code: "annex_from_civ", desc: "Aneksja prowincji, jeśli są kontrolowane przez określoną cywilizację"},
+			{code: "annex_by_civ_from_civ", desc: "Jedna cywilizacja anektuje prowincje od drugiej"},
+			{code: "annex_civ", desc: "Aneksja całej cywilizacji"},
+			{code: "annexed_by_civ", desc: "Cała cywilizacja zostaje anektowana przez inną"},
+			{code: "make_puppet", desc: "Jedna cywilizacja staje się wasalem innej"},
+			{code: "set_civ_tag", desc: "Zmienia tag cywilizacji"},
+			{code: "set_civ_tag2", desc: "Zmienia tag jednej cywilizacji na inny"},
+			{code: "run_event", desc: "Uruchamia określone wydarzenie"},
+			{code: "add_general", desc: "Dodaje losowego generała do cywilizacji"},
+			{code: "add_general2", desc: "Dodaje określonego generała"},
+			{code: "add_general3", desc: "Dodaje generała z określonymi wartościami ataku i obrony"},
+			{code: "add_advisor2", desc: "Dodaje określonego doradcę do cywilizacji"},
+			{code: "add_advisor", desc: "Dodaje losowego doradcę"},
+			{code: "add_ruler", desc: "Dodaje nowego władcę do cywilizacji"},
+			{code: "province_economy", desc: "Zwiększa gospodarkę w losowej prowincji"},
+			{code: "province_economy_capital", desc: "Zwiększa gospodarkę w stolicy"},
+			{code: "province_tax_efficiency", desc: "Zwiększa efektywność podatkową w prowincji"},
+			{code: "province_population", desc: "Ustawia populację prowincji"},
+			{code: "province_religion", desc: "Zmienia religię w prowincji"},
+			{code: "province_devastation", desc: "Zmienia poziom dewastacji prowincji"},
+			{code: "province_unrest", desc: "Zmienia poziom niepokojów w prowincji"},
+			{code: "province_add_core_civ", desc: "Dodaje prowincji rdzeń określonej cywilizacji"},
+			{code: "province_remove_core_civ", desc: "Usuwa rdzeń cywilizacji z prowincji"},
+			{code: "add_new_army", desc: "Dodaje nową armię do cywilizacji"},
+			{code: "add_variable", desc: "Dodaje zmienną dla cywilizacji, np. do wydarzeń"},
+			{code: "bonus_monthly_income", desc: "Tymczasowy bonus do miesięcznego dochodu"},
+			{code: "bonus_growth_rate", desc: "Tymczasowy bonus do wzrostu populacji"},
+			{code: "bonus_research", desc: "Tymczasowy bonus do badań"},
+			{code: "bonus_max_manpower", desc: "Tymczasowy wzrost maksymalnej liczby żołnierzy"},
+			{code: "bonus_army_movement_speed", desc: "Tymczasowy bonus do prędkości armii"},
+			{code: "join_alliance_special_id_first_tier", desc: "Dołącza do specjalnego sojuszu (np. Świętego Cesarstwa Rzymskiego)"},
+			{code: "kill_ruler", desc: "Zabija obecnego władcę cywilizacji"},
+			{code: "kill_advisor", desc: "Zabija doradcę na określonym stanowisku"},
+			{code: "promote_advisor", desc: "Awansuje doradcę"},
+			{code: "explode", desc: "Rozpad dużej cywilizacji na mniejsze państwa"},
+			{code: "price_change", desc: "Zmienia cenę konkretnego surowca"},
+			{code: "price_change_random", desc: "Losowa zmiana cen surowców"},
+			{code: "price_change_up", desc: "Zwiększa cenę konkretnego surowca"},
+			{code: "price_change_down", desc: "Zmniejsza cenę konkretnego surowca"},
+			{code: "price_change_group", desc: "Zmienia ceny wszystkich surowców w określonej grupie"},
+
+        ];
+
+        let triggerCount = 0;
+        let optionCount = 0;
+
+        function toggleMissionImage() {
+            const missionImageGroup = document.getElementById('mission-image-group');
+            missionImageGroup.style.display = document.getElementById('show-in-missions').checked ? 'block' : 'none';
+        }
+
+        function handleCustomInput(selectElement) {
+            const container = selectElement.parentElement;
+            const customInput = container.querySelector('.custom-field');
+            customInput.style.display = (selectElement.value === "custom") ? 'block' : 'none';
+        }
+
+        function addTrigger() {
+            const container = document.getElementById('triggers-container');
+            const div = document.createElement('div');
+            div.className = 'trigger';
+            div.innerHTML = `
+                <select class="trigger-select" onchange="handleCustomInput(this)">
+                    <option value="">Wybierz trigger...</option>
+                    ${triggersList.map(trigger => `
+                        <option value="${trigger.code}">
+                            ${trigger.code} - ${trigger.desc}
+                        </option>
+                    `).join('')}
+                </select>
+                <input type="text" class="custom-field" placeholder="Nazwa niestandardowego triggera" style="display: none">
+                <div class="description">Wprowadź wartość</div>
+                <input type="text" placeholder="Wartość (np. 100)" required>
+                <button class="remove-btn" onclick="this.parentElement.remove()">Usuń</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function addOption() {
+            const container = document.getElementById('options-container');
+            const div = document.createElement('div');
+            div.className = 'option';
+            div.innerHTML = `
+                <h3>Opcja/Przycisk ${++optionCount}</h3>
+                <input type="text" placeholder="Nazwa opcji/przycisku" required>
+                <input type="number" placeholder="Szansa AI (1-100)" min="1" max="100" required>
+                
+                <div class="outcomes">
+                    <h4>Efekty:</h4>
+                    <button type="button" onclick="addOutcome(this)">+ Dodaj efekt</button>
+                </div>
+                <button class="remove-btn" onclick="this.parentElement.remove()">Usuń</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function addOutcome(button) {
+            const outcomesDiv = button.previousElementSibling;
+            const div = document.createElement('div');
+            div.className = 'outcome';
+            div.innerHTML = `
+                <select onchange="handleCustomInput(this)">
+                    <option value="">Wybierz efekt...</option>
+                    ${outcomesList.map(outcome => `
+                        <option value="${outcome.code}">
+                            ${outcome.code} - ${outcome.desc}
+                        </option>
+                    `).join('')}
+                </select>
+                <input type="text" class="custom-field" placeholder="Nazwa niestandardowego efektu" style="display: none">
+                <div class="description">Wprowadź wartość efektu</div>
+                <input type="text" placeholder="Wartość (np. 100)" required>
+                <button class="remove-btn" onclick="this.parentElement.remove()">Usuń</button>
+            `;
+            outcomesDiv.appendChild(div);
+        }
+
+        function validateFields() {
+            const errors = [];
+            
+            if(!document.getElementById('event-id').value) errors.push("ID eventu jest wymagane!");
+            if(!document.getElementById('event-title').value) errors.push("Tytuł eventu jest wymagany!");
+            if(!document.getElementById('event-desc').value) errors.push("Opis eventu jest wymagany!");
+            if(!document.getElementById('event-image').value) errors.push("Ścieżka do obrazka jest wymagana!");
+            
+            if(document.getElementById('show-in-missions').checked && !document.getElementById('mission-image').value) {
+                errors.push("Wymagany numer obrazka misji!");
+            }
+
+            const triggers = document.querySelectorAll('.trigger');
+            if(triggers.length === 0) errors.push("Dodaj przynajmniej jeden trigger!");
+            
+            triggers.forEach(trigger => {
+                const select = trigger.querySelector('select');
+                const input = trigger.querySelector('input[type="text"]:not(.custom-field)');
+                if(!select.value || !input.value) errors.push("Niekompletny trigger!");
+            });
+
+            const options = document.querySelectorAll('.option');
+            if(options.length === 0) errors.push("Dodaj przynajmniej jedną opcję!");
+            
+            options.forEach(option => {
+                if(!option.querySelector('input[type="text"]').value) errors.push("Brak nazwy opcji!");
+                const aiValue = option.querySelector('input[type="number"]').value;
+                if(!aiValue) errors.push("Brak wartości AI dla opcji!");
+                
+                const outcomes = option.querySelectorAll('.outcome');
+                if(outcomes.length === 0) errors.push("Dodaj przynajmniej jeden efekt do opcji!");
+            });
+
+            return errors;
+        }
+
+        function generateEvent() {
+            const errors = validateFields();
+            const errorDiv = document.getElementById('error-message');
+            
+            if(errors.length > 0) {
+                errorDiv.innerHTML = errors.join('<br>');
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            errorDiv.style.display = 'none';
+
+            let eventCode = `id=${document.getElementById('event-id').value}\n`;
+            eventCode += `title=${document.getElementById('event-title').value}\n`;
+            eventCode += `desc=${document.getElementById('event-desc').value}\n`;
+            eventCode += `image=${document.getElementById('event-image').value}\n`;
+            eventCode += `show_in_missions=${document.getElementById('show-in-missions').checked}\n`;
+            
+            if(document.getElementById('show-in-missions').checked) {
+                eventCode += `mission_image=${document.getElementById('mission-image').value}\n`;
+            }
+
+            eventCode += `only_once=${document.getElementById('only-once').checked}\n\n`;
+
+            eventCode += "trigger_and\n";
+            document.querySelectorAll('.trigger').forEach(trigger => {
+                const select = trigger.querySelector('select');
+                const customName = trigger.querySelector('.custom-field');
+                const value = trigger.querySelector('input[type="text"]:not(.custom-field)').value;
+                
+                const type = select.value === "custom" 
+                    ? customName.value 
+                    : select.value;
+                
+                eventCode += `next_and\n${type}=${value}\n`;
+            });
+            eventCode += "trigger_and_end\n\n";
+
+            document.querySelectorAll('.option').forEach(option => {
+                eventCode += "option_btn\n";
+                eventCode += `name=${option.querySelector('input[type="text"]').value}\n`;
+                eventCode += `ai=${option.querySelector('input[type="number"]').value}\n`;
+                
+                option.querySelectorAll('.outcome').forEach(outcome => {
+                    const select = outcome.querySelector('select');
+                    const customName = outcome.querySelector('.custom-field');
+                    const value = outcome.querySelector('input[type="text"]:not(.custom-field)').value;
+                    
+                    const type = select.value === "custom" 
+                        ? customName.value 
+                        : select.value;
+                    
+                    eventCode += `${type}=${value}\n`;
+                });
+                
+                eventCode += "option_end\n\n";
+            });
+
+            document.getElementById('output').textContent = eventCode;
+        }
+    </script>
+</body>
+</html>
