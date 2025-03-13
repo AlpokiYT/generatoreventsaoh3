@@ -364,9 +364,11 @@
             eventCode += `image=${document.getElementById('event-image').value}\n`;
             eventCode += `show_in_missions=${document.getElementById('show-in-missions').checked}\n`;
             
-            if(document.getElementById('show-in-missions').checked) {
-                eventCode += `mission_image=${document.getElementById('mission-image').value}\n`;
-            }
+            // Ustaw wartość "mission_image" na 3, jeśli checkbox jest wyłączony, w przeciwnym razie użyj wartości z inputa
+            const missionImageValue = document.getElementById('show-in-missions').checked
+                ? document.getElementById('mission-image').value
+                : 3; // Domyślna wartość, gdy checkbox jest wyłączony
+            eventCode += `mission_image=${missionImageValue}\n`;
 
             eventCode += `only_once=${document.getElementById('only-once').checked}\n\n`;
 
